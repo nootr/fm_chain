@@ -1,0 +1,20 @@
+<form
+    id="block-form"
+    hx-{% if scramble.is_none() %}get{% else %}post{% endif %}="/block"
+    hx-swap="outerHTML"
+    hx-trigger="submit"
+    >
+
+    <label for="previous_hash">Previous Block Hash:</label>
+    <input type="text" name="previous_hash" value="{{ previous_hash }}" required>
+    <label for="message">Message:</label>
+    <input type="text" name="message" value="{{ message }}" placeholder="Hi, mom!">
+    {% if let Some(scramble) = scramble %}
+        <p>Scramble: {{ scramble }}</p>
+        <label for="solution">Solution:</label>
+        <input name="solution">
+        <button type="submit">Submit</button>
+    {% else %}
+        <button type="submit">Get scramble</button>
+    {% endif %}
+</form>

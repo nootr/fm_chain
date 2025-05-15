@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Check if watchexec is installed
+if ! command -v watchexec >/dev/null 2>&1; then
+    echo "Installing missing dependency using homebrew.."
+    brew install watchexec
+fi
+
+watchexec -r --ignore app.db cargo run

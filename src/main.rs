@@ -1,0 +1,32 @@
+use actix_files as fs;
+use actix_web::{App, HttpServer, middleware::Logger, web};
+use env_logger::Env;
+use sqlx::SqlitePool;
+
+use fm_chain::config;
+use fm_chain::routes;
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let conf = config::Config::from_env();
+    let db = SqlitePool::connect(&conf.database_url)
+        .await
+        .expect("DB failed");
+
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+
+    println!("Starting server at http://{}:{}/", &conf.host, conf.port);
+
+    HttpServer::new(move || {
+        App::new()
+            .wrap(Logger::default())
+            .app_data(web::Data::new(db.clone()))
+            .service(fs::Files::new(&conf.static_dir, "static"))
+            .service(routes::favicon)
+            .service(routes::index_get)
+            .service(routes::block_get)
+    })
+    .bind((conf.host, conf.port))?
+    .run()
+    .await
+}
