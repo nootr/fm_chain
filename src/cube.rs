@@ -27,7 +27,7 @@ pub struct Piece {
     orientation: u8,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Move {
     U(u8),
     D(u8),
@@ -46,6 +46,18 @@ impl Move {
             Move::R(n) => Move::R(4 - n),
             Move::F(n) => Move::F(4 - n),
             Move::B(n) => Move::B(4 - n),
+        }
+    }
+
+    pub fn combine(&self, other: &Self) -> Option<Self> {
+        match (self, other) {
+            (Move::U(n1), Move::U(n2)) => Some(Move::U((n1 + n2) % 4)),
+            (Move::D(n1), Move::D(n2)) => Some(Move::D((n1 + n2) % 4)),
+            (Move::L(n1), Move::L(n2)) => Some(Move::L((n1 + n2) % 4)),
+            (Move::R(n1), Move::R(n2)) => Some(Move::R((n1 + n2) % 4)),
+            (Move::F(n1), Move::F(n2)) => Some(Move::F((n1 + n2) % 4)),
+            (Move::B(n1), Move::B(n2)) => Some(Move::B((n1 + n2) % 4)),
+            _ => None,
         }
     }
 
@@ -275,7 +287,7 @@ mod tests {
 
     #[test]
     fn test_parse_moves() {
-        let input = "U2 D' L R2 F' B";
+        let input = " U2 D'  L\nR2 F' B";
         let expected = vec![
             Move::U(2),
             Move::D(3),

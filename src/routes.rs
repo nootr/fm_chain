@@ -2,8 +2,10 @@ use actix_files::NamedFile;
 use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
 
+use crate::cube::parse_moves;
 use crate::utils::{
     calculate_hash, cleanup_scramble, format_data, format_scramble, scramble_from_hash,
+    verify_solution,
 };
 use crate::views;
 
@@ -53,10 +55,15 @@ struct CompleteBlockInfo {
 async fn post_block(block_info: web::Form<CompleteBlockInfo>) -> impl Responder {
     let data = format_data(block_info.previous_hash.clone(), block_info.message.clone());
     let hash = calculate_hash(&data);
-    let mut raw_scramble = scramble_from_hash(&hash);
-    cleanup_scramble(&mut raw_scramble);
+    let raw_scramble = scramble_from_hash(&hash);
+    let parsed_solution = parse_moves(&block_info.solution);
 
-    // TODO: verify and save the solution
+    if !verify_solution(&raw_scramble, &parsed_solution) {
+        // TODO: respond with an error message
+        return HttpResponse::BadRequest().body("Invalid solution");
+    }
+
+    // TODO: Save the block to the database
 
     HttpResponse::Ok().body(views::get_block(
         hash,
