@@ -1,20 +1,43 @@
-<form
-    id="block-form"
-    hx-{% if scramble.is_none() %}get{% else %}post{% endif %}="/block"
-    hx-swap="outerHTML"
-    hx-trigger="submit"
-    >
+<div id="block-form">
+    <form id="get-scramble-form">
+        <label for="previous_hash">Previous Block Hash:</label><br>
+        <input type="text" id="previous_hash" name="previous_hash" value="{{ previous_hash }}" required><br><br>
 
-    <label for="previous_hash">Previous Block Hash:</label>
-    <input type="text" name="previous_hash" value="{{ previous_hash }}" required>
-    <label for="message">Message:</label>
-    <input type="text" name="message" value="{{ message }}" placeholder="Hi, mom!">
+        <label for="message_field">Message:</label><br>
+        <textarea
+            id="message_field"
+            name="message"
+            rows="3"
+            cols="40"
+            placeholder="Hi, mom!&#10; - Alice"
+            hx-trigger="keyup changed delay:200ms"
+            hx-get="/block"
+            hx-target="#block-form"
+            hx-swap="outerHTML"
+            hx-include="#get-scramble-form"
+            {% if scramble.is_some() %}
+            hx-on::afterSwap="htmx.find('message_field').focus()"
+            {% endif %}
+            required
+        >{{ message }}</textarea><br><br>
+    </form>
+
     {% if let Some(scramble) = scramble %}
+    <form
+        id="post-solution-form"
+        hx-post="/block"
+        hx-target="#block-form"
+        hx-swap="outerHTML"
+    >
+        <input type="hidden" name="previous_hash" value="{{ previous_hash }}">
+        <input type="hidden" name="message" value="{{ message }}">
+
         <p>Scramble: {{ scramble }}</p>
-        <label for="solution">Solution:</label>
-        <input name="solution">
-        <button type="submit">Submit</button>
-    {% else %}
-        <button type="submit">Get scramble</button>
+
+        <label for="solution_field">Solution:</label><br>
+        <textarea id="solution_field" name="solution" rows="3" cols="40" required></textarea><br><br>
+
+        <button type="submit">Post solution</button>
+    </form>
     {% endif %}
-</form>
+</div>
