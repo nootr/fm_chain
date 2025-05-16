@@ -1,45 +1,45 @@
 <div id="block-form">
-    <form id="get-scramble-form">
-        <label for="previous_hash">Previous Block Hash:</label>
-        <input type="text" id="previous_hash" name="previous_hash" value="{{ previous_hash }}" required><br>
+  <form id="get-scramble-form">
+    <label for="previous_hash">Previous Block Hash:</label>
+    <input type="text" id="previous_hash" name="previous_hash" value="{{ previous_hash }}" required><br>
 
-        <label for="message">Message:</label>
-        <textarea
-            id="message"
-            name="message"
-            rows="3"
-            cols="40"
-            placeholder="Hi, mom!&#10; - Alice"
-            hx-trigger="keyup changed delay:200ms"
-            hx-get="/block"
-            hx-target="#block-form"
-            hx-swap="outerHTML"
-            hx-include="#get-scramble-form"
-            {% if scramble.is_some() %}
-            hx-on::afterSwap="htmx.find('message').focus()"
-            {% endif %}
-            required
-        >{{ message }}</textarea><br>
-    </form>
+    <label for="message">Message:</label>
+    <textarea
+      id="message"
+      name="message"
+      rows="3"
+      cols="40"
+      placeholder="Hi, mom!&#10; - Alice"
+      hx-trigger="keyup changed delay:200ms"
+      hx-get="/block"
+      hx-target="#block-form"
+      hx-swap="outerHTML"
+      hx-include="#get-scramble-form"
+      {% if scramble.is_some() %}
+      hx-on::afterSwap="htmx.find('message').focus()"
+      {% endif %}
+      required
+    >{{ message }}</textarea><br>
+  </form>
 
-    {% if let Some(scramble) = scramble %}
-    <form
-        id="post-solution-form"
-        hx-post="/block"
-        hx-target="#block-form"
-        hx-swap="outerHTML"
-    >
-        <input type="hidden" name="previous_hash" value="{{ previous_hash }}">
-        <input type="hidden" name="message" value="{{ message }}">
+  {% if let Some(scramble) = scramble %}
+  <form
+    id="post-solution-form"
+    hx-post="/block"
+    hx-target="#block-form"
+    hx-swap="outerHTML"
+  >
+    <input type="hidden" name="previous_hash" value="{{ previous_hash }}">
+    <input type="hidden" name="message" value="{{ message }}">
 
-        <p>Base-18 hash: {{ hash }}</p>
-        <p>Scramble: {{ scramble }}</p>
+    <p>Base-18 hash: {{ hash }}</p>
+    <p>Scramble: {{ scramble }}</p>
 
-        <label for="solution">Solution:</label>
-        <input type="text" id="solution" name="solution" value="{{ solution }}" required><br>
-        <textarea name="solution_description" rows="3" cols="40" required>{{ solution_description }}</textarea><br>
+    <label for="solution">Solution:</label>
+    <input type="text" id="solution" name="solution" value="{{ solution }}" required><br>
+    <textarea name="solution_description" rows="3" cols="40" required>{{ solution_description }}</textarea><br>
 
-        <button type="submit">Post solution</button>
-    </form>
-    {% endif %}
+    <button type="submit">Post solution</button>
+  </form>
+  {% endif %}
 </div>
