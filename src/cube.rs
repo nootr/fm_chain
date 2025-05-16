@@ -27,7 +27,7 @@ pub struct Piece {
     orientation: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Move {
     U(u8),
     D(u8),
@@ -48,6 +48,55 @@ impl Move {
             Move::B(n) => Move::B(4 - n),
         }
     }
+
+    pub fn to_string(&self) -> String {
+        let modifier = |&n| match n {
+            1 => "",
+            2 => "2",
+            3 => "'",
+            _ => unreachable!(),
+        };
+        match self {
+            Move::U(n) => format!("U{}", modifier(n)),
+            Move::D(n) => format!("D{}", modifier(n)),
+            Move::L(n) => format!("L{}", modifier(n)),
+            Move::R(n) => format!("R{}", modifier(n)),
+            Move::F(n) => format!("F{}", modifier(n)),
+            Move::B(n) => format!("B{}", modifier(n)),
+        }
+    }
+}
+
+pub fn parse_moves(s: &str) -> Vec<Move> {
+    let mut moves = Vec::new();
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        let count = match chars.peek() {
+            Some('2') => {
+                chars.next();
+                2
+            }
+            Some('\'') => {
+                chars.next();
+                3
+            }
+            _ => 1,
+        };
+
+        let m = match c {
+            'U' => Move::U(count),
+            'D' => Move::D(count),
+            'L' => Move::L(count),
+            'R' => Move::R(count),
+            'F' => Move::F(count),
+            'B' => Move::B(count),
+            _ => continue,
+        };
+        moves.push(m);
+    }
+
+    moves
 }
 
 #[derive(Debug, Clone)]
@@ -222,5 +271,20 @@ mod tests {
             cube.is_solved(),
             "Cube should be solved after applying moves and their inverses"
         );
+    }
+
+    #[test]
+    fn test_parse_moves() {
+        let input = "U2 D' L R2 F' B";
+        let expected = vec![
+            Move::U(2),
+            Move::D(3),
+            Move::L(1),
+            Move::R(2),
+            Move::F(3),
+            Move::B(1),
+        ];
+        let result = parse_moves(input);
+        assert_eq!(result, expected, "Parsed moves should match expected");
     }
 }

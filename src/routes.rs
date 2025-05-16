@@ -53,6 +53,8 @@ struct CompleteBlockInfo {
 async fn post_block(block_info: web::Form<CompleteBlockInfo>) -> impl Responder {
     let data = format_data(block_info.previous_hash.clone(), block_info.message.clone());
     let hash = calculate_hash(&data);
+    let mut raw_scramble = scramble_from_hash(&hash);
+    cleanup_scramble(&mut raw_scramble);
 
     // TODO: verify and save the solution
 
