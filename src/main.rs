@@ -23,8 +23,9 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(db.clone()))
             .service(fs::Files::new(&conf.static_dir, "static"))
             .service(routes::favicon)
-            .service(routes::index_get)
-            .service(routes::block_get)
+            .service(routes::get_index)
+            .service(routes::get_block)
+            .service(routes::post_block)
     })
     .bind((conf.host, conf.port))?
     .run()
