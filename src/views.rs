@@ -18,10 +18,15 @@ struct IndexTemplate {
 
 pub fn get_index(blocks: Vec<Block>) -> String {
     let current_year = chrono::Utc::now().year();
+    let parent_hash = blocks
+        .get(0)
+        .map(|block| block.hash.clone())
+        .unwrap_or_default();
+
     IndexTemplate {
         current_year,
         blocks,
-        parent_hash: String::new(),
+        parent_hash,
         message: String::new(),
         scramble: None,
         hash: String::new(),

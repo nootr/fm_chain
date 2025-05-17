@@ -81,6 +81,7 @@ async fn post_block(
             &hash,
             &block_info.message,
             &block_info.solution,
+            parsed_solution.len() as u8,
             &block_info.solution_description,
         )
         .await

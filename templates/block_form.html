@@ -1,45 +1,66 @@
-<div id="block-form">
-  <form id="get-scramble-form">
-    <label for="parent_hash">Parent Block Hash:</label>
-    <input type="text" id="parent_hash" name="parent_hash" value="{{ parent_hash }}" required><br>
+<div id="block-form" class="card-container" style="animation-delay: 0.2s;">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Fewest Move Blockchain</h1>
+      <p class="card-description">Solve the cube in as few moves as possible to hash a new block</p>
+    </div>
+    <div class="card-content">
+      <form id="get-scramble-form">
+        <div id="formContent">
+          <div class="form-group">
+            <label for="parent_hash" class="form-label">Parent block</label>
+            <input type="text" id="parent_hash" class="form-input" name="parent_hash" value="{{ parent_hash }}" required><br>
+          </div>
+          <div class="form-group">
+            <div class="form-header">
+              <label for="message" class="form-label">Message</label>
+            </div>
+            <textarea
+              id="message"
+              name="message"
+              class="form-textarea"
+              rows="3"
+              cols="40"
+              placeholder="Hi, mom!&#10; - Alice"
+              hx-trigger="keyup changed delay:200ms"
+              hx-get="/block"
+              hx-target="#block-form"
+              hx-swap="outerHTML"
+              hx-include="#get-scramble-form"
+              {% if scramble.is_some() %}
+              hx-on::afterSwap="htmx.find('message').focus()"
+              {% endif %}
+              required
+            >{{ message }}</textarea>
+          </div>
 
-    <label for="message">Message:</label>
-    <textarea
-      id="message"
-      name="message"
-      rows="3"
-      cols="40"
-      placeholder="Hi, mom!&#10; - Alice"
-      hx-trigger="keyup changed delay:200ms"
-      hx-get="/block"
-      hx-target="#block-form"
-      hx-swap="outerHTML"
-      hx-include="#get-scramble-form"
-      {% if scramble.is_some() %}
-      hx-on::afterSwap="htmx.find('message').focus()"
-      {% endif %}
-      required
-    >{{ message }}</textarea><br>
-  </form>
+          {% if let Some(scramble) = scramble %}
+          <div class="form-group">
+            <div class="form-header">
+              <label class="form-label">Scramble</label>
+            </div>
+            <div class="scramble-display">{{ scramble }}</div>
+          </div>
 
-  {% if let Some(scramble) = scramble %}
-  <form
-    id="post-solution-form"
-    hx-post="/block"
-    hx-target="#block-form"
-    hx-swap="outerHTML"
-  >
-    <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
-    <input type="hidden" name="message" value="{{ message }}">
-
-    <p>Base-18 hash: {{ hash }}</p>
-    <p>Scramble: {{ scramble }}</p>
-
-    <label for="solution">Solution:</label>
-    <input type="text" id="solution" name="solution" value="{{ solution }}" required><br>
-    <textarea name="solution_description" rows="3" cols="40" required>{{ solution_description }}</textarea><br>
-
-    <button type="submit">Post solution</button>
-  </form>
-  {% endif %}
+          <div class="form-group">
+            <div class="form-header">
+              <label for="solution" class="form-label">Your Solution</label>
+            </div>
+            <textarea id="solution" class="form-textarea" placeholder="Enter your solution using standard notation (e.g., R U R' U')" required></textarea>
+            <p class="help-text">Use standard notation: R, L, U, D, F, B, R', L', etc.</p>
+          </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+    <div id="formFooter" class="card-footer">
+      <button type="submit" id="submitBtn" class="button button-primary button-block">
+        <svg class="icon button-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m22 2-7 20-4-9-9-4Z"/>
+          <path d="M22 2 11 13"/>
+        </svg>
+        Submit Solution
+      </button>
+    </div>
+  </div>
 </div>
