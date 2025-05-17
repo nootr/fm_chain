@@ -2,8 +2,8 @@ use sha2::{Digest, Sha256};
 
 use crate::cube::{Cube, Move};
 
-pub fn format_data(previous_hash: String, message: String) -> Vec<u8> {
-    format!("{}|{}", previous_hash, message).as_bytes().to_vec()
+pub fn format_data(parent_hash: String, message: String) -> Vec<u8> {
+    format!("{}|{}", parent_hash, message).as_bytes().to_vec()
 }
 
 pub fn calculate_hash(data: &[u8]) -> String {

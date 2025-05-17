@@ -1,7 +1,7 @@
 <div id="block-form">
   <form id="get-scramble-form">
-    <label for="previous_hash">Previous Block Hash:</label>
-    <input type="text" id="previous_hash" name="previous_hash" value="{{ previous_hash }}" required><br>
+    <label for="parent_hash">Parent Block Hash:</label>
+    <input type="text" id="parent_hash" name="parent_hash" value="{{ parent_hash }}" required><br>
 
     <label for="message">Message:</label>
     <textarea
@@ -29,7 +29,7 @@
     hx-target="#block-form"
     hx-swap="outerHTML"
   >
-    <input type="hidden" name="previous_hash" value="{{ previous_hash }}">
+    <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
     <input type="hidden" name="message" value="{{ message }}">
 
     <p>Base-18 hash: {{ hash }}</p>

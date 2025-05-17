@@ -1,11 +1,14 @@
 use askama::Template;
 use chrono::{self, Datelike};
 
+use crate::models::Block;
+
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate {
     current_year: i32,
-    previous_hash: String,
+    blocks: Vec<Block>,
+    parent_hash: String,
     message: String,
     scramble: Option<String>,
     hash: String,
@@ -13,11 +16,12 @@ struct IndexTemplate {
     solution_description: String,
 }
 
-pub fn get_index() -> String {
+pub fn get_index(blocks: Vec<Block>) -> String {
     let current_year = chrono::Utc::now().year();
     IndexTemplate {
         current_year,
-        previous_hash: String::new(),
+        blocks,
+        parent_hash: String::new(),
         message: String::new(),
         scramble: None,
         hash: String::new(),
@@ -31,7 +35,7 @@ pub fn get_index() -> String {
 #[derive(Template)]
 #[template(path = "block_form.html")]
 struct BlockFormTemplate {
-    previous_hash: String,
+    parent_hash: String,
     message: String,
     scramble: Option<String>,
     hash: String,
@@ -40,7 +44,7 @@ struct BlockFormTemplate {
 }
 
 pub fn get_block(
-    previous_hash: String,
+    parent_hash: String,
     message: String,
     scramble: String,
     hash: String,
@@ -48,7 +52,7 @@ pub fn get_block(
     solution_description: String,
 ) -> String {
     BlockFormTemplate {
-        previous_hash,
+        parent_hash,
         message,
         scramble: Some(scramble),
         hash,
@@ -57,4 +61,16 @@ pub fn get_block(
     }
     .render()
     .expect("Failed to render template")
+}
+
+#[derive(Template)]
+#[template(path = "blocks_overview.html")]
+struct BlocksTemplate {
+    blocks: Vec<Block>,
+}
+
+pub fn get_blocks(blocks: Vec<Block>) -> String {
+    BlocksTemplate { blocks }
+        .render()
+        .expect("Failed to render template")
 }
