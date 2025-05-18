@@ -36,12 +36,13 @@ async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
     let scramble = format_scramble(&raw_scramble);
 
     HttpResponse::Ok().body(views::get_block(
-        block_info.parent_hash.clone(),
-        block_info.message.clone(),
-        scramble,
-        hash.clone(),
-        String::new(),
-        String::new(),
+        &block_info.parent_hash,
+        &block_info.message,
+        Some(&scramble),
+        &hash,
+        "",
+        "",
+        None,
         None,
     ))
 }
@@ -68,13 +69,14 @@ async fn post_block(
         Ok(block) => block,
         Err(_) => {
             return HttpResponse::Ok().body(views::get_block(
-                block_info.parent_hash.clone(),
-                block_info.message.clone(),
-                scramble,
-                hash,
-                block_info.solution.clone(),
-                block_info.solution_description.clone(),
-                Some("Parent block not found".to_string()),
+                &block_info.parent_hash,
+                &block_info.message,
+                Some(&scramble),
+                &hash,
+                &block_info.solution,
+                &block_info.solution_description,
+                Some("Parent block not found"),
+                None,
             ));
         }
     };
@@ -86,13 +88,14 @@ async fn post_block(
 
     if !verify_solution(&raw_scramble, &parsed_solution) {
         return HttpResponse::Ok().body(views::get_block(
-            block_info.parent_hash.clone(),
-            block_info.message.clone(),
-            scramble,
-            hash,
-            block_info.solution.clone(),
-            block_info.solution_description.clone(),
-            Some("Invalid solution".to_string()),
+            &block_info.parent_hash,
+            &block_info.message,
+            Some(&scramble),
+            &hash,
+            &block_info.solution,
+            &block_info.solution_description,
+            Some("Invalid solution"),
+            None,
         ));
     }
 
@@ -115,13 +118,14 @@ async fn post_block(
     };
 
     HttpResponse::Ok().body(views::get_block(
-        block.hash,
-        String::new(),
-        String::new(),
-        String::new(),
-        String::new(),
-        String::new(),
+        &block.hash,
+        "",
         None,
+        "",
+        "",
+        "",
+        None,
+        Some("Block created successfully!"),
     ))
 }
 

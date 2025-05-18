@@ -312,49 +312,23 @@ footer {
   align-items: flex-start;
   gap: 0.75rem;
   animation: fadeIn 0.3s ease forwards;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.alert:hover {
+  cursor: pointer;
 }
 
 .alert-error {
   background-color: var(--error-bg);
   border: 1px solid var(--error-color);
+  color: var(--error-light);
 }
 
 .alert-success {
   background-color: var(--success-bg);
   border: 1px solid var(--success-color);
-}
-
-.alert-icon {
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.alert-content {
-  flex: 1;
-}
-
-.alert-title {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.alert-error .alert-title {
-  color: var(--error-light);
-}
-
-.alert-success .alert-title {
-  color: var(--success-light);
-}
-
-.alert-message {
-  font-size: 0.875rem;
-}
-
-.alert-error .alert-message {
-  color: var(--error-light);
-}
-
-.alert-success .alert-message {
   color: var(--success-light);
 }
 

@@ -5,16 +5,17 @@ use crate::models::Block;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-struct IndexTemplate {
+struct IndexTemplate<'a> {
     current_year: i32,
     blocks: Vec<Block>,
-    parent_hash: String,
-    message: String,
-    scramble: Option<String>,
-    hash: String,
-    solution: String,
-    solution_description: String,
-    error: Option<String>,
+    parent_hash: &'a str,
+    message: &'a str,
+    scramble: Option<&'a str>,
+    hash: &'a str,
+    solution: &'a str,
+    solution_description: &'a str,
+    error: Option<&'a str>,
+    alert: Option<&'a str>,
 }
 
 pub fn get_index(blocks: Vec<Block>) -> String {
@@ -27,13 +28,14 @@ pub fn get_index(blocks: Vec<Block>) -> String {
     IndexTemplate {
         current_year,
         blocks,
-        parent_hash,
-        message: String::new(),
+        parent_hash: &parent_hash,
+        message: "",
         scramble: None,
-        hash: String::new(),
-        solution: String::new(),
-        solution_description: String::new(),
+        hash: "",
+        solution: "",
+        solution_description: "",
         error: None,
+        alert: None,
     }
     .render()
     .expect("Failed to render template")
@@ -41,34 +43,36 @@ pub fn get_index(blocks: Vec<Block>) -> String {
 
 #[derive(Template)]
 #[template(path = "block_form.html")]
-struct BlockFormTemplate {
-    parent_hash: String,
-    message: String,
-    scramble: Option<String>,
-    hash: String,
-    solution: String,
-    solution_description: String,
-    error: Option<String>,
+struct BlockFormTemplate<'a> {
+    parent_hash: &'a str,
+    message: &'a str,
+    scramble: Option<&'a str>,
+    hash: &'a str,
+    solution: &'a str,
+    solution_description: &'a str,
+    error: Option<&'a str>,
+    alert: Option<&'a str>,
 }
 
-// TODO: use &str instead of String where possible
 pub fn get_block(
-    parent_hash: String,
-    message: String,
-    scramble: String,
-    hash: String,
-    solution: String,
-    solution_description: String,
-    error: Option<String>,
+    parent_hash: &str,
+    message: &str,
+    scramble: Option<&str>,
+    hash: &str,
+    solution: &str,
+    solution_description: &str,
+    error: Option<&str>,
+    alert: Option<&str>,
 ) -> String {
     BlockFormTemplate {
         parent_hash,
         message,
-        scramble: Some(scramble),
+        scramble,
         hash,
         solution,
         solution_description,
         error,
+        alert,
     }
     .render()
     .expect("Failed to render template")

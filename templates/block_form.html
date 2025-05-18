@@ -1,19 +1,19 @@
-<!-- TODO: add success messages -->
 <div id="block-form" class="card-container">
   {% if let Some(error) = error %}
-  <div class="alert alert-error">
-    <div class="alert-icon">
-      <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    </div>
-    <div class="alert-content">
-      <h4 class="alert-title">Error</h4>
-      <p class="alert-message">{{ error }}</p>
-    </div>
-  </div>
+  <div
+    class="alert alert-error"
+    x-data="{ show: true }"
+    x-show="show"
+    x-on:click="show = false"
+    >{{ error }}</div>
+  {% endif %}
+  {% if let Some(alert) = alert %}
+  <div
+    class="alert alert-success"
+    x-data="{ show: true }"
+    x-show="show"
+    x-on:click="show = false"
+    >{{ alert }}</div>
   {% endif %}
   <div class="card">
     <div class="card-header">
@@ -85,7 +85,6 @@
     </div>
     {% if scramble.is_some() %}
     <div class="card-footer">
-        <!-- 🔴 TODO: POST SOLUTION FORM SEPARATE -->
       <button type="submit" form="post-solution-form" class="button button-primary button-block">
         <svg class="icon button-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m22 2-7 20-4-9-9-4Z"/>
