@@ -83,8 +83,15 @@ main {
   padding: 2rem 0;
 }
 
+.modal {
+  position: fixed;
+  top: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .card-container {
-  max-width: 42rem;
+  width: 42rem;
   margin: 0 auto;
 }
 
@@ -93,7 +100,8 @@ main {
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   backdrop-filter: blur(8px);
-  overflow: hidden;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
 }
 
 .card-header {

@@ -33,12 +33,15 @@ async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = format_scramble(&raw_scramble);
+    let scramble = match block_info.message.len() {
+        0 => None,
+        _ => Some(format_scramble(&raw_scramble)),
+    };
 
     HttpResponse::Ok().body(views::get_block(
         &block_info.parent_hash,
         &block_info.message,
-        Some(&scramble),
+        scramble.as_deref(),
         &hash,
         "",
         "",
