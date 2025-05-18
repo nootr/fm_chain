@@ -42,6 +42,7 @@ async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
         hash.clone(),
         String::new(),
         String::new(),
+        None,
     ))
 }
 
@@ -58,10 +59,23 @@ async fn post_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
+    let data = format_data(block_info.parent_hash.clone(), block_info.message.clone());
+    let hash = calculate_hash(&data);
+    let mut raw_scramble = scramble_from_hash(&hash);
+    cleanup_scramble(&mut raw_scramble);
+    let scramble = format_scramble(&raw_scramble);
     let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => block,
         Err(_) => {
-            return HttpResponse::NotFound().body("Parent block not found");
+            return HttpResponse::Ok().body(views::get_block(
+                block_info.parent_hash.clone(),
+                block_info.message.clone(),
+                scramble,
+                hash,
+                block_info.solution.clone(),
+                block_info.solution_description.clone(),
+                Some("Parent block not found".to_string()),
+            ));
         }
     };
 
@@ -71,8 +85,15 @@ async fn post_block(
     let parsed_solution = parse_moves(&block_info.solution);
 
     if !verify_solution(&raw_scramble, &parsed_solution) {
-        // TODO: respond with an error message
-        return HttpResponse::BadRequest().body("Invalid solution");
+        return HttpResponse::Ok().body(views::get_block(
+            block_info.parent_hash.clone(),
+            block_info.message.clone(),
+            scramble,
+            hash,
+            block_info.solution.clone(),
+            block_info.solution_description.clone(),
+            Some("Invalid solution".to_string()),
+        ));
     }
 
     let block = match parent_block
@@ -100,6 +121,7 @@ async fn post_block(
         String::new(),
         String::new(),
         String::new(),
+        None,
     ))
 }
 

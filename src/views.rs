@@ -14,6 +14,7 @@ struct IndexTemplate {
     hash: String,
     solution: String,
     solution_description: String,
+    error: Option<String>,
 }
 
 pub fn get_index(blocks: Vec<Block>) -> String {
@@ -32,6 +33,7 @@ pub fn get_index(blocks: Vec<Block>) -> String {
         hash: String::new(),
         solution: String::new(),
         solution_description: String::new(),
+        error: None,
     }
     .render()
     .expect("Failed to render template")
@@ -46,8 +48,10 @@ struct BlockFormTemplate {
     hash: String,
     solution: String,
     solution_description: String,
+    error: Option<String>,
 }
 
+// TODO: use &str instead of String where possible
 pub fn get_block(
     parent_hash: String,
     message: String,
@@ -55,6 +59,7 @@ pub fn get_block(
     hash: String,
     solution: String,
     solution_description: String,
+    error: Option<String>,
 ) -> String {
     BlockFormTemplate {
         parent_hash,
@@ -63,6 +68,7 @@ pub fn get_block(
         hash,
         solution,
         solution_description,
+        error,
     }
     .render()
     .expect("Failed to render template")

@@ -11,6 +11,12 @@
   --accent-light: #34d399;
   --accent-dark: #059669;
   --accent-bg: rgba(16, 185, 129, 0.2);
+  --error-color: #ef4444;
+  --error-light: #f87171;
+  --error-bg: rgba(239, 68, 68, 0.5);
+  --success-color: #10b981;
+  --success-light: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.5);
   --radius: 0.5rem;
 }
 
@@ -172,11 +178,6 @@ main {
   color: var(--text-muted);
 }
 
-.move-count {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
 .button {
   display: inline-flex;
   align-items: center;
@@ -268,6 +269,93 @@ footer {
 .footer-text {
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+.success-container {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.success-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  background-color: var(--accent-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-color);
+}
+
+.success-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.success-message {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.alert {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  padding: 1rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.alert-error {
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-color);
+}
+
+.alert-success {
+  background-color: var(--success-bg);
+  border: 1px solid var(--success-color);
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.alert-error .alert-title {
+  color: var(--error-light);
+}
+
+.alert-success .alert-title {
+  color: var(--success-light);
+}
+
+.alert-message {
+  font-size: 0.875rem;
+}
+
+.alert-error .alert-message {
+  color: var(--error-light);
+}
+
+.alert-success .alert-message {
+  color: var(--success-light);
 }
 
 /* Icons */
