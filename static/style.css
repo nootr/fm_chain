@@ -1,7 +1,7 @@
 :root {
   --bg-primary: #030712;
   --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.5);
+  --bg-card: rgba(17, 24, 39, 0.8);
   --bg-input: #1f2937;
   --border-color: #374151;
   --text-primary: #f9fafb;
@@ -13,10 +13,10 @@
   --accent-bg: rgba(16, 185, 129, 0.2);
   --error-color: #ef4444;
   --error-light: #f87171;
-  --error-bg: rgba(239, 68, 68, 0.5);
+  --error-bg: rgba(239, 68, 68, 0.8);
   --success-color: #10b981;
   --success-light: #34d399;
-  --success-bg: rgba(16, 185, 129, 0.5);
+  --success-bg: rgba(16, 185, 129, 0.8);
   --radius: 0.5rem;
 }
 
@@ -58,6 +58,8 @@ header {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.025em;
+  text-decoration: none;
+  color: var(--text-primary);
 }
 
 .logo-accent {
