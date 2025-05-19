@@ -1,4 +1,5 @@
 use std::array;
+use std::fmt::{Display, Formatter};
 
 const URF: usize = 0;
 const ULF: usize = 1;
@@ -37,6 +38,29 @@ pub enum Move {
     B(u8),
 }
 
+impl Display for Move {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let modifier = |&n| match n {
+            1 => "",
+            2 => "2",
+            3 => "'",
+            _ => unreachable!(),
+        };
+        write!(
+            f,
+            "{}",
+            match self {
+                Move::U(n) => format!("U{}", modifier(n)),
+                Move::D(n) => format!("D{}", modifier(n)),
+                Move::L(n) => format!("L{}", modifier(n)),
+                Move::R(n) => format!("R{}", modifier(n)),
+                Move::F(n) => format!("F{}", modifier(n)),
+                Move::B(n) => format!("B{}", modifier(n)),
+            }
+        )
+    }
+}
+
 impl Move {
     pub fn inverse(&self) -> Self {
         match self {
@@ -58,23 +82,6 @@ impl Move {
             (Move::F(n1), Move::F(n2)) => Some(Move::F((n1 + n2) % 4)),
             (Move::B(n1), Move::B(n2)) => Some(Move::B((n1 + n2) % 4)),
             _ => None,
-        }
-    }
-
-    pub fn to_string(&self) -> String {
-        let modifier = |&n| match n {
-            1 => "",
-            2 => "2",
-            3 => "'",
-            _ => unreachable!(),
-        };
-        match self {
-            Move::U(n) => format!("U{}", modifier(n)),
-            Move::D(n) => format!("D{}", modifier(n)),
-            Move::L(n) => format!("L{}", modifier(n)),
-            Move::R(n) => format!("R{}", modifier(n)),
-            Move::F(n) => format!("F{}", modifier(n)),
-            Move::B(n) => format!("B{}", modifier(n)),
         }
     }
 }
@@ -117,8 +124,8 @@ pub struct Cube {
     pub edges: [Piece; 12],
 }
 
-impl Cube {
-    pub fn new() -> Self {
+impl Default for Cube {
+    fn default() -> Self {
         let corners = array::from_fn(|i| Piece {
             original_permutation: i as u8,
             orientation: 0,
@@ -129,9 +136,11 @@ impl Cube {
             orientation: 0,
         });
 
-        Cube { corners, edges }
+        Self { corners, edges }
     }
+}
 
+impl Cube {
     fn cycle<T: Clone>(arr: &mut [T], indices: &[usize], turns: u8) {
         for _ in 0..turns {
             let temp = arr[indices[0]].clone();
@@ -198,7 +207,7 @@ mod tests {
 
     #[test]
     fn test_cube_initialization() {
-        let cube = Cube::new();
+        let cube = Cube::default();
         assert_eq!(cube.corners.len(), 8);
         assert_eq!(cube.edges.len(), 12);
         assert!(cube.is_solved());
@@ -206,7 +215,7 @@ mod tests {
 
     #[test]
     fn test_cube_apply_move() {
-        let mut cube = Cube::new();
+        let mut cube = Cube::default();
         let m = Move::U(1);
         cube.apply_move(&m);
         assert!(!cube.is_solved());
@@ -228,7 +237,7 @@ mod tests {
             ] {
                 tests_done += 1;
                 let inverse = m.inverse();
-                let mut cube = Cube::new();
+                let mut cube = Cube::default();
                 cube.apply_move(&m);
                 cube.apply_move(&inverse);
                 assert!(
@@ -245,7 +254,7 @@ mod tests {
     #[test]
     fn test_cube_multiple_moves_inverse() {
         let mut rng = rand::rng();
-        let mut cube = Cube::new();
+        let mut cube = Cube::default();
 
         let move_variants = [
             |n| Move::U(n),

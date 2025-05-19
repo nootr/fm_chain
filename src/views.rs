@@ -34,6 +34,7 @@ struct BlockFormTemplate<'a> {
     alert: Option<&'a str>,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn get_block(
     parent_hash: &str,
     message: &str,

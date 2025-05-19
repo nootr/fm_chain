@@ -52,7 +52,7 @@ pub fn scramble_from_hash(hash: &str) -> Vec<Move> {
             _ => continue, // skip invalid characters
         };
 
-        moves.push(move_defs[index].clone());
+        moves.push(move_defs[index]);
     }
 
     moves
@@ -84,13 +84,13 @@ pub fn format_scramble(scramble: &[Move]) -> String {
         if !formatted.is_empty() {
             formatted.push(' ');
         }
-        formatted.push_str(&m.to_string());
+        formatted.push_str(&format!("{}", m));
     }
     formatted
 }
 
 pub fn verify_solution(scramble: &[Move], solution: &[Move]) -> bool {
-    let mut cube = Cube::new();
+    let mut cube = Cube::default();
     for m in scramble {
         cube.apply_move(m);
     }
