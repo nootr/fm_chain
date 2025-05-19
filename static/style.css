@@ -209,6 +209,11 @@ main {
   background-color: var(--accent-color);
 }
 
+.button[disabled] {
+  background-color: var(--bg-input);
+  color: var(--text-muted);
+}
+
 .button-ghost {
   background-color: transparent;
   color: var(--accent-color);

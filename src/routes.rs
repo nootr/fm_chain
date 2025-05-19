@@ -102,7 +102,7 @@ async fn post_block(
         ));
     }
 
-    let block = match parent_block
+    if parent_block
         .create_child(
             &db,
             &hash,
@@ -112,24 +112,13 @@ async fn post_block(
             &block_info.solution_description,
         )
         .await
+        .is_err()
     {
-        Ok(block) => block,
-        Err(_) => {
-            return HttpResponse::InternalServerError()
-                .body("Failed to create block. Please try again later.");
-        }
+        return HttpResponse::InternalServerError()
+            .body("Failed to create block. Please try again later.");
     };
 
-    HttpResponse::Ok().body(views::get_block(
-        &block.hash,
-        "",
-        None,
-        "",
-        "",
-        "",
-        None,
-        Some("Block created successfully!"),
-    ))
+    HttpResponse::Ok().body("")
 }
 
 #[get("/blocks")]

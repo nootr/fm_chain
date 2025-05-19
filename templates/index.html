@@ -3,9 +3,22 @@
 {% block content %}
   <button
     class="button button-primary"
+
     hx-get="/block?parent_hash={{ blocks[0].hash }}&message="
     hx-swap="afterend"
     hx-trigger="click"
+
+    x-data="{
+      disabled: false,
+      observer: null,
+      init() {
+        this.observer = new MutationObserver(() => {
+          this.disabled = document.querySelector('#block-form') !== null;
+        });
+        this.observer.observe(document.body, { childList: true, subtree: true });
+      },
+    }"
+    :disabled="disabled"
     >New block</button>
   <!--
   {% include "blocks_overview.html" %}

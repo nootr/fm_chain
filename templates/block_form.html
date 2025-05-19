@@ -2,7 +2,7 @@
   id="block-form"
   class="card-container modal"
   >
-  <!-- TODO: move messages to fields -->
+  <!-- TODO: move messages to fields and base.html -->
   {% if let Some(error) = error %}
   <div
     class="alert alert-error"
@@ -58,7 +58,7 @@
       </form>
 
       {% if let Some(scramble) = scramble %}
-      <form id="post-solution-form" hx-post="/block" hx-target="#block-form" hx-swap="innerHTML" hx-include="#get-scramble-form">
+      <form id="post-solution-form" hx-post="/block" hx-target="#block-form" hx-swap="outerHTML" hx-include="#get-scramble-form">
         <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
         <input type="hidden" name="message" value="{{ message }}">
 
