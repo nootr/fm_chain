@@ -36,7 +36,7 @@
               name="message"
               class="form-textarea"
               placeholder="Hi, mom!&#10; - Alice"
-              hx-trigger="keyup changed delay:500ms"
+              hx-trigger="keyup changed{% if scramble.is_some() %} delay:800ms{% endif %}"
               hx-get="/block"
               hx-target="#block-form"
               hx-swap="outerHTML"
