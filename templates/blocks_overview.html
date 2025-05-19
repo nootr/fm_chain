@@ -1,22 +1,23 @@
-<div
-    class="blocks"
-    hx-get="/blocks"
-    hx-swap="outerHTML"
-    hx-trigger="every 5s"
-    >
-  {% for block in blocks %}
-    <div class="block">
-      <h2>Block</h2>
-      <ul>
-        <li>Height: {{ block.height }}</li>
-        <li>Hash: {{ block.hash }}</li>
-        {% if let Some(parent_hash) = block.parent_hash %}
-          <li>Parent hash: {{ parent_hash }}</li>
-        {% endif %}
-        <li>Message: {{ block.message }}</li>
-        <li>Solution: {{ block.solution }}</li>
-        <li>Solution Description: {{ block.solution_description }}</li>
-      </ul>
-    </div>
-  {% endfor %}
-</div>
+{% for block in blocks %}
+  <div class="block">
+    <h2>Block</h2>
+    <ul>
+      <li>Height: {{ block.height }}</li>
+      <li>Hash: {{ block.hash }}</li>
+      {% if let Some(parent_hash) = block.parent_hash %}
+        <li>Parent hash: {{ parent_hash }}</li>
+      {% endif %}
+      <li>Message: {{ block.message }}</li>
+      <li>Solution: {{ block.solution }}</li>
+      <li>Solution Description: {{ block.solution_description }}</li>
+    </ul>
+    <button
+      class="button button-primary"
+      hx-get="/block?parent_hash={{ blocks[0].hash }}&message="
+      hx-swap="beforeend"
+      hx-target="body"
+      hx-trigger="click"
+      :disabled="disabled"
+      >New block</button>
+  </div>
+{% endfor %}

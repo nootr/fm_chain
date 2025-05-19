@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <button
-    class="button button-primary"
-
-    hx-get="/block?parent_hash={{ blocks[0].hash }}&message="
-    hx-swap="afterend"
-    hx-trigger="click"
-
+  <div class="loading-line"></div>
+  <div
+    hx-get="/blocks"
+    hx-swap="innerHTML"
+    hx-trigger="load, every 10s"
     x-data="{
       disabled: false,
       observer: null,
@@ -18,9 +16,5 @@
         this.observer.observe(document.body, { childList: true, subtree: true });
       },
     }"
-    :disabled="disabled"
-    >New block</button>
-  <!--
-  {% include "blocks_overview.html" %}
-  -->
+    ></div>
 {% endblock %}

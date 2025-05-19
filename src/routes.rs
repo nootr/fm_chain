@@ -17,9 +17,8 @@ async fn favicon() -> impl Responder {
 }
 
 #[get("/")]
-async fn get_index(db: web::Data<sqlx::SqlitePool>) -> impl Responder {
-    let blocks = Block::find_all(&db).await.expect("Unable to fetch blocks");
-    HttpResponse::Ok().body(views::get_index(blocks))
+async fn get_index() -> impl Responder {
+    HttpResponse::Ok().body(views::get_index())
 }
 
 #[derive(Deserialize)]
@@ -96,7 +95,7 @@ async fn post_block(
             &block_info.solution,
             &block_info.solution_description,
         ));
-        return FlashMessage::error("Invalid solution").set(resp);
+        return FlashMessage::error("I'm sorry, but your solution seems to be invalid. Please double check.").set(resp);
     }
 
     if parent_block

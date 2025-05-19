@@ -7,18 +7,14 @@ use crate::models::Block;
 #[template(path = "index.html")]
 struct IndexTemplate {
     current_year: i32,
-    blocks: Vec<Block>,
 }
 
-pub fn get_index(blocks: Vec<Block>) -> String {
+pub fn get_index() -> String {
     let current_year = chrono::Utc::now().year();
 
-    IndexTemplate {
-        current_year,
-        blocks,
-    }
-    .render()
-    .expect("Failed to render template")
+    IndexTemplate { current_year }
+        .render()
+        .expect("Failed to render template")
 }
 
 #[derive(Template)]

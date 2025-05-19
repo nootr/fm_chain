@@ -106,23 +106,6 @@ main {
     border: 1px solid var(--error-color);
 }
 
-@keyframes fill {
-    0% {
-        width: 0;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
-.flash-message .flash-line {
-    width: 100%;
-    height: 4px;
-    background-color: var(--text-primary);
-    border-radius: var(--radius);
-    animation: fill 5s ease forwards;
-}
-
 .flash-text {
     font-size: 0.875rem;
     margin: 0;
@@ -399,7 +382,12 @@ footer {
   color: var(--success-light);
 }
 
-/* Icons */
+.block {
+  border: 1px solid var(--border-color);
+  margin: 1rem 0;
+  padding: 2rem;
+}
+
 .icon {
   display: inline-block;
   width: 1em;
@@ -410,14 +398,59 @@ footer {
   vertical-align: middle;
 }
 
+
+@keyframes fill {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes fillunfill {
+    0% {
+        width: 0;
+        left: 0;
+    }
+    50% {
+        width: 100%;
+        left: 0;
+    }
+    100% {
+        width: 0;
+        left: 100%;
+    }
+}
+
+.flash-message .flash-line {
+    width: 100%;
+    height: 4px;
+    background-color: var(--text-primary);
+    border-radius: var(--radius);
+    animation: fill 5s ease forwards;
+}
+
+.loading-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-muted);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: fillunfill 10s ease infinite;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .container {
     padding: 0 1rem;
   }
-  
-  .card-header, 
-  .card-content, 
+
+  .card-header,
+  .card-content,
   .card-footer {
     padding: 1rem;
   }
