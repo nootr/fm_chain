@@ -1,23 +1,17 @@
-{% for block in blocks %}
-<div class="block">
-  <h2>Block</h2>
-  <ul>
-    <li>Height: {{ block.height }}</li>
-    <li>Hash: {{ block.hash }}</li>
-    {% if let Some(parent_hash) = block.parent_hash %}
-    <li>Parent hash: {{ parent_hash }}</li>
-    {% endif %}
-    <li>Message: {{ block.message }}</li>
-    <li>Solution: {{ block.solution }}</li>
-    <li>Solution Description: {{ block.solution_description }}</li>
-  </ul>
-  <button
-    class="button button-primary"
-    hx-get="/block?parent_hash={{ block.hash }}&message="
-    hx-swap="beforeend"
-    hx-target="body"
-    hx-trigger="click"
-    :disabled="disabled"
-    >New block</button>
-</div>
+<ul class="blockchain">
+{% for data in blocks %}
+  <li>
+    <span class="branch-display">{{ data.branch }}</span>
+    <span class="hash">{{ data.block.short_hash() }}</span>
+    {{ data.block.message }}
+    <button
+      class="button button-ghost"
+      hx-get="/block?parent_hash={{ data.block.hash }}&message="
+      hx-swap="beforeend"
+      hx-target="body"
+      hx-trigger="click"
+      :disabled="disabled"
+      >New block</button>
+  </li>
 {% endfor %}
+</ul>

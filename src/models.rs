@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
 use sqlx::{FromRow, SqlitePool};
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, Clone, FromRow)]
 pub struct Block {
     pub hash: String,
     pub parent_hash: Option<String>,
@@ -66,5 +66,9 @@ impl Block {
         .await?;
 
         Ok(block)
+    }
+
+    pub fn short_hash(&self) -> String {
+        self.hash.chars().take(8).collect()
     }
 }

@@ -393,10 +393,20 @@ footer {
   color: var(--success-light);
 }
 
-.block {
-  border: 1px solid var(--border-color);
-  margin: 1rem 0;
-  padding: 2rem;
+.blockchain .branch-display {
+  font-family: 'Courier New', monospace;
+  margin-right: 2rem;
+}
+
+.blockchain .hash {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-right: 2rem;
+}
+
+.blockchain li {
+  list-style: none;
 }
 
 .icon {
