@@ -96,7 +96,7 @@ async fn post_block(
             &block_info.solution_description,
         ));
         return FlashMessage::error(
-            "I'm sorry, but your solution doesn't seem to be correct. Could you please double-check it?",
+            "I'm sorry, but your solution doesn't seem to be correct. Please double-check it!",
         )
         .set(resp);
     }

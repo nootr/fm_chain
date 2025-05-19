@@ -201,8 +201,12 @@ main {
 }
 
 .form-textarea {
-  min-height: 120px;
+  min-height: 6rem;
   resize: vertical;
+}
+
+.form-textarea[readonly] {
+  color: var(--text-muted);
 }
 
 .display {
