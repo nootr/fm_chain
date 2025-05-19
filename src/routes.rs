@@ -95,7 +95,10 @@ async fn post_block(
             &block_info.solution,
             &block_info.solution_description,
         ));
-        return FlashMessage::error("I'm sorry, but your solution seems to be invalid. Please double check.").set(resp);
+        return FlashMessage::error(
+            "I'm sorry, but your solution doesn't seem to be correct. Could you please double-check it?",
+        )
+        .set(resp);
     }
 
     if parent_block

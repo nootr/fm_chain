@@ -25,12 +25,10 @@
         <div id="formContent">
           <div class="form-group">
             <label for="parent_hash" class="form-label">Parent block</label>
-            <input type="text" id="parent_hash" class="form-input" name="parent_hash" value="{{ parent_hash }}" required><br>
+            <input name="parent_hash" class="display disabled-display" value="{{ parent_hash }}" readonly required></input>
           </div>
           <div class="form-group">
-            <div class="form-header">
-              <label for="message" class="form-label">Message</label>
-            </div>
+            <label for="message" class="form-label">Message</label>
             <textarea
               id="message"
               name="message"
@@ -58,35 +56,23 @@
         <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
         <input type="hidden" name="message" value="{{ message }}">
 
-        <div id="formContent">
-          <div class="form-group">
-            <div class="form-header">
-              <label class="form-label">Scramble</label>
-            </div>
-            <div class="display scramble-display">{{ scramble }}</div>
-          </div>
+        <div class="form-group">
+          <label class="form-label">Scramble</label>
+          <div class="display scramble-display">{{ scramble }}</div>
+          <p class="help-text">This scramble is created from the hash of the block: {{ hash }}.</p>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label">Hash</label>
-            <div class="display hash-display">{{ hash }}</div>
-          </div>
-
-          <div class="form-group">
-            <div class="form-header">
-              <label for="solution" class="form-label">Your Solution</label>
-            </div>
-            <input name="solution" class="form-input" placeholder="Enter your solution using standard notation (e.g., R U R' U')" value="{{ solution }}" required></input>
-            <p class="help-text">Use standard notation: R, L, U, D, F, B, R', L', etc.</p>
-          </div>
-          <div class="form-group">
-            <div class="form-header">
-              <label for="solution_description" class="form-label">Solution Description</label>
-            </div>
-            <textarea name="solution_description" class="form-textarea" placeholder="Describe how you found your solution" required>{{ solution_description }}</textarea>
-          </div>
-          {% endif %}
+        <div class="form-group">
+          <label for="solution" class="form-label">Your Solution</label>
+          <input name="solution" class="form-input" placeholder="Enter your solution using standard notation (e.g., R U R' U')" value="{{ solution }}" required></input>
+          <p class="help-text">Use standard notation: R, L, U, D, F, B, R', L', etc.</p>
+        </div>
+        <div class="form-group">
+          <label for="solution_description" class="form-label">Solution Description</label>
+          <textarea name="solution_description" class="form-textarea" placeholder="Describe how you found your solution" required>{{ solution_description }}</textarea>
         </div>
       </form>
+      {% endif %}
     </div>
     {% if scramble.is_some() %}
     <div class="card-footer">
