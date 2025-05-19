@@ -78,9 +78,9 @@ pub fn cleanup_scramble(scramble: &mut Vec<Move>) {
     *scramble = cleaned;
 }
 
-pub fn format_scramble(scramble: &[Move]) -> String {
+pub fn format_moves(moves: &[Move]) -> String {
     let mut formatted = String::new();
-    for m in scramble {
+    for m in moves {
         if !formatted.is_empty() {
             formatted.push(' ');
         }

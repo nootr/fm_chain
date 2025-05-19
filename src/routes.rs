@@ -6,7 +6,7 @@ use crate::cube::parse_moves;
 use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
-    calculate_hash, cleanup_scramble, format_data, format_scramble, scramble_from_hash,
+    calculate_hash, cleanup_scramble, format_data, format_moves, scramble_from_hash,
     verify_solution,
 };
 use crate::views;
@@ -35,7 +35,7 @@ async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
     cleanup_scramble(&mut raw_scramble);
     let scramble = match block_info.message.len() {
         0 => None,
-        _ => Some(format_scramble(&raw_scramble)),
+        _ => Some(format_moves(&raw_scramble)),
     };
 
     HttpResponse::Ok().body(views::get_block(
@@ -65,7 +65,7 @@ async fn post_block(
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = format_scramble(&raw_scramble);
+    let scramble = format_moves(&raw_scramble);
     let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => block,
         Err(_) => {
@@ -106,7 +106,7 @@ async fn post_block(
             &db,
             &hash,
             &block_info.message,
-            &block_info.solution,
+            &format_moves(&raw_scramble),
             parsed_solution.len() as u8,
             &block_info.solution_description,
         )
