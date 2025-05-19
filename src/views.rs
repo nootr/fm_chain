@@ -1,20 +1,13 @@
 use askama::Template;
-use chrono::{self, Datelike};
 
 use crate::models::Block;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-struct IndexTemplate {
-    current_year: i32,
-}
+struct IndexTemplate;
 
 pub fn get_index() -> String {
-    let current_year = chrono::Utc::now().year();
-
-    IndexTemplate { current_year }
-        .render()
-        .expect("Failed to render template")
+    IndexTemplate.render().expect("Failed to render template")
 }
 
 #[derive(Template)]
