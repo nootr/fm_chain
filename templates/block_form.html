@@ -1,6 +1,19 @@
 <div
   id="block-form"
   class="card-container modal"
+  x-data="{
+    show: true,
+    ask() {
+      return confirm('Are you sure you want to close this form?');
+    },
+    hide() {
+      this.show = false;
+      setTimeout(() => $el.remove(), 800);
+    }
+  }"
+  x-show="show"
+  x-transition:leave.duration.800ms
+  @click.away="ask() ? hide() : null"
   >
   <!-- TODO: move messages to fields and base.html -->
   {% if let Some(error) = error %}
