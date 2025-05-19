@@ -3,6 +3,7 @@ use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
 
 use crate::cube::parse_moves;
+use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
     calculate_hash, cleanup_scramble, format_data, format_scramble, scramble_from_hash,
@@ -45,8 +46,6 @@ async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
         &hash,
         "",
         "",
-        None,
-        None,
     ))
 }
 
@@ -71,16 +70,15 @@ async fn post_block(
     let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => block,
         Err(_) => {
-            return HttpResponse::Ok().body(views::get_block(
+            let resp = HttpResponse::Ok().body(views::get_block(
                 &block_info.parent_hash,
                 &block_info.message,
                 Some(&scramble),
                 &hash,
                 &block_info.solution,
                 &block_info.solution_description,
-                Some("Parent block not found"),
-                None,
             ));
+            return FlashMessage::error("Parent block not found").set(resp);
         }
     };
 
@@ -90,16 +88,15 @@ async fn post_block(
     let parsed_solution = parse_moves(&block_info.solution);
 
     if !verify_solution(&raw_scramble, &parsed_solution) {
-        return HttpResponse::Ok().body(views::get_block(
+        let resp = HttpResponse::Ok().body(views::get_block(
             &block_info.parent_hash,
             &block_info.message,
             Some(&scramble),
             &hash,
             &block_info.solution,
             &block_info.solution_description,
-            Some("Invalid solution"),
-            None,
         ));
+        return FlashMessage::error("Invalid solution").set(resp);
     }
 
     if parent_block
@@ -118,7 +115,8 @@ async fn post_block(
             .body("Failed to create block. Please try again later.");
     };
 
-    HttpResponse::Ok().body("")
+    let response = HttpResponse::Ok().body("");
+    FlashMessage::info("Block created successfully. Thank you!").set(response)
 }
 
 #[get("/blocks")]

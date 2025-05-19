@@ -30,8 +30,6 @@ struct BlockFormTemplate<'a> {
     hash: &'a str,
     solution: &'a str,
     solution_description: &'a str,
-    error: Option<&'a str>,
-    alert: Option<&'a str>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -42,8 +40,6 @@ pub fn get_block(
     hash: &str,
     solution: &str,
     solution_description: &str,
-    error: Option<&str>,
-    alert: Option<&str>,
 ) -> String {
     BlockFormTemplate {
         parent_hash,
@@ -52,8 +48,6 @@ pub fn get_block(
         hash,
         solution,
         solution_description,
-        error,
-        alert,
     }
     .render()
     .expect("Failed to render template")
