@@ -3,13 +3,25 @@
 {% block content %}
   <div class="loading-line"></div>
   <div
+    class="blockchain"
     hx-get="/blocks"
     hx-swap="innerHTML"
     hx-trigger="load, every 10s"
     x-data="{
+      scrolled: false,
       disabled: false,
       observer: null,
       init() {
+        // Scroll to the top-right corner of the container, but only once.
+        this.$el.addEventListener('htmx:afterSwap', (event) => {
+          if (this.scrolled === false) {
+            this.scrolled = true;
+            this.$el.scrollTop = 0;
+            this.$el.scrollLeft = this.$el.scrollWidth;
+          }
+        });
+
+        // Observe the body for changes to enable/disable the button
         this.observer = new MutationObserver(() => {
           this.disabled = document.querySelector('#block-form') !== null;
         });

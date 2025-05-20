@@ -393,16 +393,40 @@ footer {
   color: var(--success-light);
 }
 
+.blockchain {
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 16rem);
+}
+
 .blockchain .branch-display {
   font-family: 'Courier New', monospace;
-  margin-right: 2rem;
 }
 
 .blockchain .hash {
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
   color: var(--text-secondary);
-  margin-right: 2rem;
+}
+
+.block-message {
+  max-width: 20ch;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chain-head {
+  font-weight: 600;
+  font-style: italic;
+}
+
+.fixed-spacing {
+  white-space: pre;
 }
 
 .blockchain li {

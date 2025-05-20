@@ -102,79 +102,100 @@ pub fn verify_solution(scramble: &[Move], solution: &[Move]) -> bool {
     cube.is_solved()
 }
 
+#[derive(Debug)]
 pub struct BranchBlock {
     pub branch: String,
     pub block: Block,
 }
 
-pub fn generate_branch_display(blocks: Vec<Block>) -> Vec<BranchBlock> {
-    let mut hash_to_block = HashMap::new();
-    let mut parent_to_children: HashMap<String, Vec<String>> = HashMap::new();
-
-    for block in &blocks {
-        hash_to_block.insert(block.hash.clone(), block.clone());
+fn build_tree(blocks: &[Block]) -> HashMap<String, Vec<Block>> {
+    let mut tree: HashMap<String, Vec<Block>> = HashMap::new();
+    for block in blocks {
         if let Some(parent_hash) = &block.parent_hash {
-            parent_to_children
-                .entry(parent_hash.clone())
+            tree.entry(parent_hash.clone())
                 .or_default()
-                .push(block.hash.clone());
+                .push(block.clone());
         }
     }
 
-    let mut roots = vec![];
-    for block in &blocks {
-        if block.parent_hash.is_none() {
-            roots.push(block.hash.clone());
-        }
+    // Sort children for consistent output
+    for children in tree.values_mut() {
+        children.sort_by_key(|b| b.hash.clone());
     }
 
-    let mut result = Vec::new();
+    tree
+}
 
-    fn dfs(
-        hash: &str,
-        prefix: String,
-        parent_to_children: &HashMap<String, Vec<String>>,
-        hash_to_block: &HashMap<String, Block>,
-        result: &mut Vec<BranchBlock>,
-    ) {
-        let block = hash_to_block.get(hash).unwrap();
-        result.push(BranchBlock {
-            branch: format!("{}* ", prefix),
-            block: block.clone(),
-        });
+fn find_root(blocks: &[Block]) -> Option<&Block> {
+    blocks.iter().find(|b| b.parent_hash.is_none())
+}
 
-        let children = parent_to_children.get(hash).cloned().unwrap_or_default();
+fn collect_branch_blocks_reverse(
+    tree: &HashMap<String, Vec<Block>>,
+    block_map: &HashMap<String, Block>,
+    hash: &str,
+    prefix: String,
+    last: bool,
+    out: &mut Vec<BranchBlock>,
+    is_root: bool,
+) {
+    let block = block_map.get(hash).expect("Block not found");
 
-        if children.len() > 1 {
-            result.push(BranchBlock {
-                branch: format!("{}|/", prefix),
-                block: block.clone(),
-            });
-        }
+    let connector = if is_root {
+        ""
+    } else if last {
+        "┌─ "
+    } else {
+        "├─ "
+    };
 
+    let line = format!("{}{}", prefix, connector);
+    out.push(BranchBlock {
+        branch: line,
+        block: block.clone(),
+    });
+
+    let child_prefix = if is_root {
+        "".to_string()
+    } else if last {
+        format!("{}    ", prefix)
+    } else {
+        format!("{}│   ", prefix)
+    };
+
+    if let Some(children) = tree.get(hash) {
         for (i, child) in children.iter().enumerate() {
             let is_last = i == children.len() - 1;
-            let child_prefix = format!("{}{}", prefix, if is_last { "  " } else { "| " });
-            dfs(
-                child,
-                child_prefix,
-                parent_to_children,
-                hash_to_block,
-                result,
+            collect_branch_blocks_reverse(
+                tree,
+                block_map,
+                &child.hash,
+                child_prefix.clone(),
+                is_last,
+                out,
+                false,
             );
         }
     }
+}
 
-    for root in roots {
-        dfs(
-            &root,
-            String::new(),
-            &parent_to_children,
-            &hash_to_block,
-            &mut result,
-        );
-    }
+pub fn generate_branch_display(blocks: &[Block]) -> Vec<BranchBlock> {
+    let block_map: HashMap<String, Block> =
+        blocks.iter().map(|b| (b.hash.clone(), b.clone())).collect();
 
+    let tree = build_tree(blocks);
+    let root = find_root(blocks).expect("No root block found");
+
+    let mut result = Vec::new();
+    collect_branch_blocks_reverse(
+        &tree,
+        &block_map,
+        &root.hash,
+        String::new(),
+        true,
+        &mut result,
+        true,
+    );
     result.reverse();
     result
 }

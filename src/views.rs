@@ -47,11 +47,13 @@ pub fn get_block(
 #[template(path = "blocks_overview.html")]
 struct BlocksTemplate {
     blocks: Vec<BranchBlock>,
+    head_hash: String,
 }
 
 pub fn get_blocks(blocks: Vec<Block>) -> String {
     BlocksTemplate {
-        blocks: generate_branch_display(blocks),
+        blocks: generate_branch_display(&blocks),
+        head_hash: blocks[0].hash.clone(),
     }
     .render()
     .expect("Failed to render template")
