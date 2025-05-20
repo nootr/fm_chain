@@ -107,18 +107,6 @@ pub struct BranchBlock {
     pub block: Block,
 }
 
-/// Generate an ASCII graph line for a list of blocks.
-///
-/// Will generate a graph like this:
-/// ```
-/// *    // New hash
-/// *    // Hash is known
-/// | *  // New hash
-/// */   // Hash is known
-/// *    // Both branches originate from this hash
-/// ```
-/// Bottom up. Start with single root and for each node check how many notes have that block as parent.
-/// The root is the last block in the list.
 pub fn generate_branch_display(blocks: Vec<Block>) -> Vec<BranchBlock> {
     let mut hash_to_block = HashMap::new();
     let mut parent_to_children: HashMap<String, Vec<String>> = HashMap::new();
