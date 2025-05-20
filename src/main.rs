@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
     let db = SqlitePool::connect(&conf.database_url)
         .await
         .expect("DB failed");
-    let cache = MemoryCache::<String, String>::new();
+    let cache = MemoryCache::<String, String>::default();
     cache.start_cleanup_task(60);
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));

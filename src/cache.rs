@@ -38,17 +38,23 @@ pub trait Cache {
     fn clear(&self) -> Result<(), Self::Error>;
 }
 
+impl<K, V> Default for MemoryCache<K, V>
+where
+    K: Eq + Hash + Clone + Send + Sync + 'static,
+    V: Clone + Send + Sync + 'static,
+{
+    fn default() -> Self {
+        Self {
+            data: Arc::new(RwLock::new(HashMap::new())),
+        }
+    }
+}
+
 impl<K, V> MemoryCache<K, V>
 where
     K: Eq + Hash + Clone + Send + Sync + 'static,
     V: Clone + Send + Sync + 'static,
 {
-    pub fn new() -> Self {
-        Self {
-            data: Arc::new(RwLock::new(HashMap::new())),
-        }
-    }
-
     pub fn start_cleanup_task(&self, interval_secs: u64) {
         let cache_data = self.data.clone();
 
@@ -164,11 +170,16 @@ mod tests {
 
     #[test]
     fn test_memory_cache() {
-        let cache = MemoryCache::new();
+        let cache = MemoryCache::default();
         cache
-            .set(&"key1", "value1", Some(Duration::from_secs(1)))
+            .set(&"key1", "value1", Some(Duration::from_secs(10)))
             .unwrap();
         assert_eq!(cache.get(&"key1").unwrap(), Some("value1"));
+
+        cache
+            .set(&"key1", "value2", Some(Duration::from_secs(1)))
+            .unwrap();
+        assert_eq!(cache.get(&"key1").unwrap(), Some("value2"));
 
         thread::sleep(Duration::from_secs(2));
         assert_eq!(cache.get(&"key1").unwrap(), None);
