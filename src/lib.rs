@@ -1,3 +1,4 @@
+pub mod cache;
 pub mod config;
 pub mod cube;
 pub mod messages;

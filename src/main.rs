@@ -3,6 +3,7 @@ use actix_web::{App, HttpServer, middleware::Logger, web};
 use env_logger::Env;
 use sqlx::SqlitePool;
 
+use fm_chain::cache::MemoryCache;
 use fm_chain::config;
 use fm_chain::routes;
 
@@ -12,6 +13,8 @@ async fn main() -> std::io::Result<()> {
     let db = SqlitePool::connect(&conf.database_url)
         .await
         .expect("DB failed");
+    let cache = MemoryCache::<String, String>::new();
+    cache.start_cleanup_task(60);
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
@@ -21,6 +24,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(cache.clone()))
             .service(fs::Files::new(&conf.static_dir, "static"))
             .service(routes::favicon)
             .service(routes::get_index)
