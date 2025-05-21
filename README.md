@@ -10,6 +10,14 @@ A blockchain which uses Fewest Moves solutions to hash-based scrambles as proof 
 ./bin/run
 ```
 
+
+### Generate a context for an LLM
+
+```bash
+./bin/generate_context
+```
+
+
 ### Database
 
 ```bash

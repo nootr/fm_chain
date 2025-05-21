@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ ! -d "src" ]; then
+  echo "Error: The 'src/' directory was not found. Ensure you run this script from the root of your Rust project."
+  exit 1
+fi
+
+{
+echo "AI Context for Rust Project"
+echo "Date: $(date)"
+echo "---"
+echo ""
+
+find src -name "*.rs" | while read -r file; do
+  echo "### File: $file"
+  echo "\`\`\`rust"
+  cat "$file"
+  echo "\`\`\`"
+  echo ""
+  echo "---"
+  echo ""
+done
+} > context.md
+
+echo "Rust project context successfully written to context.md."
