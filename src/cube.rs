@@ -308,4 +308,94 @@ mod tests {
         let result = parse_moves(input);
         assert_eq!(result, expected, "Parsed moves should match expected");
     }
+
+    #[test]
+    fn test_regression_orientation() {
+        // Test case for a bug where orientation is not followed correctly
+        let corner_twist_alg = "R' D R F D F' U' F D' F' R' D' R U";
+        let mut cube = Cube::default();
+        let moves = parse_moves(corner_twist_alg);
+        for m in moves {
+            cube.apply_move(&m);
+        }
+        assert!(
+            !cube.corners_solved(),
+            "Corners should not be solved after applying corner twist algorithm"
+        );
+        assert!(
+            cube.edges_solved(),
+            "Edges should be solved after applying corner twist algorithm"
+        );
+        assert!(
+            !cube.is_solved(),
+            "Cube should not be solved after applying corner twist algorithm"
+        );
+    }
+
+    #[test]
+    fn test_full_solves() {
+        // Data source: https://www.fewest-moves.info/archive/468
+        let solves = [
+            "D L' U F2 B2 L2 U2 B2 D' L2 F2 U2 B2 F' U' L2 F2 U B' U R D'",
+            "F2 D2 F2 L R2 U2 L B2 U2 L B2 L' B2 U2 F' L R2 F2 D2 L F D' L' B2 U",
+            "B D' R' D L' D' R F' D B2 D' F D' B L' B' L2 B R' U2 D2 R D' B2 L' U",
+            "B' U' L R F D' R2 D L2 F2 U' B2 L R D2 L' R B2 U' R' U L2 U D' R2 D2 F2",
+            "D2 F2 U D B2 U' D F2 B D2 R2 B D2 R2 F D2 L B R2 D2 F' L' F' D' L' B2 U",
+            "B L' B2 D2 L F' L B L' F L' B' L B L2 R' U2 D2 R2 U2 R' D' R U2 R' B2 L' U",
+            "L F' L' B' L F L' D2 L U R B L U' L' D2 L U D' L2 B2 R' B L B' R2 D R'",
+            "L F2 L' D2 F2 L' B2 U2 R' U2 B2 L2 R2 U2 B2 F' R2 L U D' L2 U' D' L F D' L' B2 U",
+            "B' L U2 R F D2 R U2 R2 U B2 R2 U' R2 U2 R2 U' R2 U' F2 U R' F2 R U2 D R2 B2 U2",
+            "L' U2 D2 B' R D' R' F D F' R F2 R' D R B' F' U2 F D F' U2 F2 D' B D2 F' D2 F R' D R U'",
+            "B' D2 U2 B' L2 B' U B U' D' R' U' R D U2 B2 L2 B R B' L2 B R F R F' R B L' B' L' U' R D",
+        ];
+
+        for solve in &solves {
+            let scramble = "R' U' F L2 B2 L2 F2 D U L2 U F2 U' R D2 U' F' L D2 F D' U2 B2 U' R' U' F";
+            let mut cube = Cube::default();
+            let scramble_moves = parse_moves(scramble);
+            for m in &scramble_moves {
+                cube.apply_move(m);
+                assert!(
+                    !cube.is_solved(),
+                    "Cube should not be solved while applying scramble moves"
+                );
+            }
+            let solve_moves = parse_moves(solve);
+            for m in &solve_moves {
+                assert!(
+                    !cube.is_solved(),
+                    "[{}] Move {}, cube should not be solved while applying solve moves",
+                    solve,
+                    format!("{:?}", m)
+                );
+                cube.apply_move(m);
+            }
+            assert!(
+                cube.is_solved(),
+                "[{}] Cube should be solved after applying solve moves",
+                solve,
+            );
+        }
+    }
+
+    #[test]
+    fn test_default_cube_solved() {
+        let cube = Cube::default();
+        assert!(cube.is_solved(), "Default cube should be solved");
+        assert!(cube.corners_solved(), "Corners should be solved");
+        assert!(cube.edges_solved(), "Edges should be solved");
+    }
+
+    #[test]
+    fn test_six_sexy_solved() {
+        let mut cube = Cube::default();
+        for _ in 0..6 {
+            cube.apply_move(&Move::R(1));
+            cube.apply_move(&Move::U(1));
+            cube.apply_move(&Move::R(3));
+            cube.apply_move(&Move::U(3));
+            assert!(!cube.is_solved(), "Cube should not be solved while moving");
+        }
+        assert!(cube.is_solved(), "Cube should be solved after six sexy moves");
+    }
 }
