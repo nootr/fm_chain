@@ -141,41 +141,73 @@ impl Default for Cube {
 }
 
 impl Cube {
-    fn cycle<T: Clone>(arr: &mut [T], indices: &[usize], turns: u8) {
-        for _ in 0..turns {
-            let temp = arr[indices[0]].clone();
-            for i in 0..indices.len() - 1 {
-                arr[indices[i]] = arr[indices[i + 1]].clone();
-            }
-            arr[indices[indices.len() - 1]] = temp;
-        }
-    }
+    pub fn apply_move(&mut self, mv: &Move) {
+        let (corner_cycle, edge_cycle, corner_orients, edge_orients) = match mv {
+            Move::U(_) => (
+                [URF, ULF, ULB, UBR],
+                [UF, UL, UB, UR],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ),
+            Move::D(_) => (
+                [DRF, DLF, DLB, DBR],
+                [DF, DL, DB, DR],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ),
+            Move::F(_) => (
+                [URF, ULF, DLF, DRF],
+                [UF, FL, DF, FR],
+                [1, 2, 1, 2],
+                [1, 0, 1, 0],
+            ),
+            Move::B(_) => (
+                [ULB, UBR, DBR, DLB],
+                [UB, BR, DB, BL],
+                [1, 2, 1, 2],
+                [1, 0, 1, 0],
+            ),
+            Move::L(_) => (
+                [ULF, ULB, DLB, DLF],
+                [UL, BL, DL, FL],
+                [1, 2, 1, 2],
+                [1, 0, 1, 0],
+            ),
+            Move::R(_) => (
+                [UBR, URF, DRF, DBR],
+                [UR, FR, DR, BR],
+                [1, 2, 1, 2],
+                [1, 0, 1, 0],
+            ),
+        };
 
-    pub fn apply_move(&mut self, m: &Move) {
-        match m {
-            Move::U(n) => {
-                Self::cycle(&mut self.corners, &[URF, ULF, ULB, UBR], *n);
-                Self::cycle(&mut self.edges, &[UF, UL, UB, UR], *n);
+        let times = match mv {
+            Move::U(t) | Move::D(t) | Move::L(t) | Move::R(t) | Move::F(t) | Move::B(t) => *t,
+        };
+
+        for _ in 0..times {
+            // Corners
+            let original_corners = self.corners.clone();
+            for i in 0..4 {
+                let from = corner_cycle[i];
+                let to = corner_cycle[(i + 1) % 4];
+                let new_orientation = (original_corners[from].orientation + corner_orients[i]) % 3;
+                self.corners[to] = Piece {
+                    original_permutation: original_corners[from].original_permutation,
+                    orientation: new_orientation,
+                };
             }
-            Move::D(n) => {
-                Self::cycle(&mut self.corners, &[DRF, DBR, DLB, DLF], *n);
-                Self::cycle(&mut self.edges, &[DF, DR, DB, DL], *n);
-            }
-            Move::L(n) => {
-                Self::cycle(&mut self.corners, &[ULF, DLF, DLB, ULB], *n);
-                Self::cycle(&mut self.edges, &[UL, FL, DL, BL], *n);
-            }
-            Move::R(n) => {
-                Self::cycle(&mut self.corners, &[URF, UBR, DBR, DRF], *n);
-                Self::cycle(&mut self.edges, &[UR, BR, DR, FR], *n);
-            }
-            Move::F(n) => {
-                Self::cycle(&mut self.corners, &[ULF, URF, DRF, DLF], *n);
-                Self::cycle(&mut self.edges, &[UF, FR, DF, FL], *n);
-            }
-            Move::B(n) => {
-                Self::cycle(&mut self.corners, &[UBR, ULB, DLB, DBR], *n);
-                Self::cycle(&mut self.edges, &[UB, BL, DB, BR], *n);
+
+            // Edges
+            let original_edges = self.edges.clone();
+            for i in 0..4 {
+                let from = edge_cycle[i];
+                let to = edge_cycle[(i + 1) % 4];
+                let new_orientation = (original_edges[from].orientation + edge_orients[i]) % 2;
+                self.edges[to] = Piece {
+                    original_permutation: original_edges[from].original_permutation,
+                    orientation: new_orientation,
+                };
             }
         }
     }
@@ -350,7 +382,8 @@ mod tests {
         ];
 
         for solve in &solves {
-            let scramble = "R' U' F L2 B2 L2 F2 D U L2 U F2 U' R D2 U' F' L D2 F D' U2 B2 U' R' U' F";
+            let scramble =
+                "R' U' F L2 B2 L2 F2 D U L2 U F2 U' R D2 U' F' L D2 F D' U2 B2 U' R' U' F";
             let mut cube = Cube::default();
             let scramble_moves = parse_moves(scramble);
             for m in &scramble_moves {
@@ -389,13 +422,23 @@ mod tests {
     #[test]
     fn test_six_sexy_solved() {
         let mut cube = Cube::default();
-        for _ in 0..6 {
+        for i in 0..6 {
             cube.apply_move(&Move::R(1));
             cube.apply_move(&Move::U(1));
             cube.apply_move(&Move::R(3));
             cube.apply_move(&Move::U(3));
-            assert!(!cube.is_solved(), "Cube should not be solved while moving");
+            if i < 5 {
+                assert!(
+                    !cube.is_solved(),
+                    "Cube should not be solved after {} sexy moves",
+                    i + 1
+                );
+            } else {
+                assert!(
+                    cube.is_solved(),
+                    "Cube should be solved after six sexy moves"
+                );
+            }
         }
-        assert!(cube.is_solved(), "Cube should be solved after six sexy moves");
     }
 }
