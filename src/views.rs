@@ -46,10 +46,16 @@ pub fn get_block(
 #[template(path = "blocks_overview.html")]
 struct BlocksTemplate {
     blocks: Vec<Block>,
+    next_offset: u32,
+    show_all: bool,
 }
 
-pub fn get_blocks(blocks: Vec<Block>) -> String {
-    BlocksTemplate { blocks }
-        .render()
-        .expect("Failed to render template")
+pub fn get_blocks(blocks: Vec<Block>, next_offset: u32, show_all: bool) -> String {
+    BlocksTemplate {
+        blocks,
+        next_offset,
+        show_all,
+    }
+    .render()
+    .expect("Failed to render template")
 }

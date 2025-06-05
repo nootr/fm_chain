@@ -16,16 +16,37 @@ pub struct Block {
 
 impl Block {
     // Fetch all blocks
-    pub async fn find_all(db: &SqlitePool) -> Result<Vec<Block>, sqlx::Error> {
-        sqlx::query_as::<_, Block>(
+    pub async fn find_all(
+        db: &SqlitePool,
+        page_size: Option<u32>,
+        page_offset: Option<u32>,
+    ) -> Result<Vec<Block>, sqlx::Error> {
+        let mut query_str = String::from(
             "SELECT hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at
              FROM blocks
              ORDER BY
-                height DESC,
-                solution_moves DESC",
-        )
-        .fetch_all(db)
-        .await
+                 height DESC,
+                 solution_moves DESC",
+        );
+
+        // Conditionally add LIMIT and OFFSET clauses
+        if page_size.is_some() {
+            query_str.push_str(" LIMIT ?");
+        }
+        if page_offset.is_some() {
+            query_str.push_str(" OFFSET ?");
+        }
+
+        let mut query = sqlx::query_as::<_, Block>(&query_str);
+
+        if let Some(size) = page_size {
+            query = query.bind(size);
+        }
+        if let Some(offset) = page_offset {
+            query = query.bind(offset);
+        }
+
+        query.fetch_all(db).await
     }
 
     // Fetch a block by hash
@@ -74,8 +95,15 @@ impl Block {
     }
 
     // Public function to find the longest chain
-    pub async fn find_longest_chain(db: &SqlitePool) -> Result<Vec<Block>, sqlx::Error> {
-        let all_blocks = Self::find_all(db).await?;
+    pub async fn find_longest_chain(
+        db: &SqlitePool,
+        _page_size: u32,
+        _page_offset: u32,
+    ) -> Result<Vec<Block>, sqlx::Error> {
+        let all_blocks = Self::find_all(db, None, None)
+            .await
+            .expect("Should fetch all blocks");
+        // TODO: pagination
         Self::get_longest_chain_from_blocks(all_blocks)
     }
 

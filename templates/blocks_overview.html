@@ -11,4 +11,13 @@
     > {{ block.message }}</button></pre>
   </li>
   {% endfor %}
+  {% if !blocks.is_empty() %}
+  <li
+    hx-get="/blocks?all={{ show_all }}&page_size=2&page_offset={{ next_offset }}"
+    hx-trigger="revealed"
+    hx-swap="outerHTML"
+  >
+    Loading more blocks...
+  </li>
+  {% endif %}
 </ul>

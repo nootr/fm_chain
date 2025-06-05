@@ -124,6 +124,8 @@ async fn post_block(
 #[derive(Debug, Deserialize)]
 pub struct BlockQueryParams {
     pub all: Option<bool>,
+    pub page_size: Option<u32>,
+    pub page_offset: Option<u32>,
 }
 
 #[get("/blocks")]
@@ -131,14 +133,20 @@ async fn get_blocks(
     db: web::Data<sqlx::SqlitePool>,
     query_params: web::Query<BlockQueryParams>,
 ) -> impl Responder {
-    let blocks = if query_params.all.unwrap_or(false) {
-        Block::find_all(&db)
+    let show_all = query_params.all.unwrap_or(false);
+    let page_size = query_params.page_size.unwrap_or(2);
+    let page_offset = query_params.page_offset.unwrap_or(0);
+    let next_offset = page_offset + page_size;
+
+    let blocks = if show_all {
+        Block::find_all(&db, Some(page_size), Some(page_offset))
             .await
             .expect("Unable to fetch all blocks")
     } else {
-        Block::find_longest_chain(&db)
+        Block::find_longest_chain(&db, page_size, page_offset)
             .await
             .expect("Unable to fetch longest chain")
     };
-    HttpResponse::Ok().body(views::get_blocks(blocks))
+
+    HttpResponse::Ok().body(views::get_blocks(blocks, next_offset, show_all))
 }
