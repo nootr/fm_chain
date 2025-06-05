@@ -123,6 +123,8 @@ async fn post_block(
 
 #[get("/blocks")]
 async fn get_blocks(db: web::Data<sqlx::SqlitePool>) -> impl Responder {
-    let blocks = Block::find_all(&db).await.expect("Unable to fetch blocks");
+    let blocks = Block::find_longest_chain(&db)
+        .await
+        .expect("Unable to fetch longest chain");
     HttpResponse::Ok().body(views::get_blocks(blocks))
 }
