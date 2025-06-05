@@ -890,6 +890,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "rand 0.9.1",
+ "rubiks-moves",
  "serde",
  "serde_json",
  "sha2",
@@ -1311,6 +1312,15 @@ name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7943c866cc5cd64cbc25b2e01621d07fa8eb2a1a23160ee81ce38704e97b8ecf"
+
+[[package]]
+name = "itertools"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
+]
 
 [[package]]
 name = "itoa"
@@ -1871,6 +1881,17 @@ dependencies = [
  "spki",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "rubiks-moves"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "080a445a5d921514508a1b529fb13efc02df8c2cf34a83ee750cd087e2bbf950"
+dependencies = [
+ "itertools",
+ "nom",
+ "thiserror",
 ]
 
 [[package]]

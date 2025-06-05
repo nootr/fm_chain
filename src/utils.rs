@@ -1,7 +1,8 @@
+use rubiks_moves::moves::Algorithm;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
-use crate::cube::{Cube, Move};
+use crate::cube::Move;
 use crate::models::Block;
 
 pub fn format_data(parent_hash: String, message: String) -> Vec<u8> {
@@ -91,15 +92,10 @@ pub fn format_moves(moves: &[Move]) -> String {
     formatted
 }
 
-pub fn verify_solution(scramble: &[Move], solution: &[Move]) -> bool {
-    let mut cube = Cube::default();
-    for m in scramble {
-        cube.apply_move(m);
-    }
-    for m in solution {
-        cube.apply_move(m);
-    }
-    cube.is_solved()
+pub fn verify_solution(raw_scramble: &[Move], raw_solution: &[Move]) -> bool {
+    let scramble = Algorithm::from(&format_moves(raw_scramble)).unwrap();
+    let solution = Algorithm::from(&format_moves(raw_solution)).unwrap();
+    solution.solves(&scramble)
 }
 
 #[derive(Debug)]
