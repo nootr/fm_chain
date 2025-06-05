@@ -121,10 +121,24 @@ async fn post_block(
     FlashMessage::info("Block created successfully. Thank you!").set(response)
 }
 
+#[derive(Debug, Deserialize)]
+pub struct BlockQueryParams {
+    pub all: Option<bool>,
+}
+
 #[get("/blocks")]
-async fn get_blocks(db: web::Data<sqlx::SqlitePool>) -> impl Responder {
-    let blocks = Block::find_longest_chain(&db)
-        .await
-        .expect("Unable to fetch longest chain");
+async fn get_blocks(
+    db: web::Data<sqlx::SqlitePool>,
+    query_params: web::Query<BlockQueryParams>,
+) -> impl Responder {
+    let blocks = if query_params.all.unwrap_or(false) {
+        Block::find_all(&db)
+            .await
+            .expect("Unable to fetch all blocks")
+    } else {
+        Block::find_longest_chain(&db)
+            .await
+            .expect("Unable to fetch longest chain")
+    };
     HttpResponse::Ok().body(views::get_blocks(blocks))
 }
