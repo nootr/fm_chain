@@ -1,14 +1,14 @@
 <ul>
-  {% for data in blocks %}
-  <li>
-    <pre><span class="branch-display">{{ data.branch }}</span><span class="hash">{{ data.block.short_hash() }}</span>{% if data.block.hash == head_hash %} [HEAD]{% endif %}<button
-      class="button button-ghost block-message{% if data.block.hash == head_hash %} chain-head{% endif %}"
-      hx-get="/block?parent_hash={{ data.block.hash }}&message="
+  {% for block in blocks %}
+  <li class="block">
+    <pre><span class="hash">{{ block.short_hash() }}</span><button
+      class="button button-ghost block-message"
+      hx-get="/block?parent_hash={{ block.hash }}&message="
       hx-swap="beforeend"
       hx-target="body"
       hx-trigger="click"
       :disabled="disabled"
-    > {{ data.block.message }}</button></pre>
+    > {{ block.message }}</button></pre>
   </li>
   {% endfor %}
 </ul>

@@ -1,9 +1,7 @@
 use rubiks_moves::moves::Algorithm;
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
 
 use crate::cube::Move;
-use crate::models::Block;
 
 pub fn format_data(parent_hash: String, message: String) -> Vec<u8> {
     format!("{}|{}", parent_hash, message).as_bytes().to_vec()
@@ -96,104 +94,6 @@ pub fn verify_solution(raw_scramble: &[Move], raw_solution: &[Move]) -> bool {
     let scramble = Algorithm::from(&format_moves(raw_scramble)).unwrap();
     let solution = Algorithm::from(&format_moves(raw_solution)).unwrap();
     solution.solves(&scramble)
-}
-
-#[derive(Debug)]
-pub struct BranchBlock {
-    pub branch: String,
-    pub block: Block,
-}
-
-fn build_tree(blocks: &[Block]) -> HashMap<String, Vec<Block>> {
-    let mut tree: HashMap<String, Vec<Block>> = HashMap::new();
-    for block in blocks {
-        if let Some(parent_hash) = &block.parent_hash {
-            tree.entry(parent_hash.clone())
-                .or_default()
-                .push(block.clone());
-        }
-    }
-
-    // Sort children for consistent output
-    for children in tree.values_mut() {
-        children.sort_by_key(|b| b.hash.clone());
-    }
-
-    tree
-}
-
-fn find_root(blocks: &[Block]) -> Option<&Block> {
-    blocks.iter().find(|b| b.parent_hash.is_none())
-}
-
-fn collect_branch_blocks_reverse(
-    tree: &HashMap<String, Vec<Block>>,
-    block_map: &HashMap<String, Block>,
-    hash: &str,
-    prefix: String,
-    last: bool,
-    out: &mut Vec<BranchBlock>,
-    is_root: bool,
-) {
-    let block = block_map.get(hash).expect("Block not found");
-
-    let connector = if is_root {
-        ""
-    } else if last {
-        "┌─ "
-    } else {
-        "├─ "
-    };
-
-    let line = format!("{}{}", prefix, connector);
-    out.push(BranchBlock {
-        branch: line,
-        block: block.clone(),
-    });
-
-    let child_prefix = if is_root {
-        "".to_string()
-    } else if last {
-        format!("{}    ", prefix)
-    } else {
-        format!("{}│   ", prefix)
-    };
-
-    if let Some(children) = tree.get(hash) {
-        for (i, child) in children.iter().enumerate() {
-            let is_last = i == children.len() - 1;
-            collect_branch_blocks_reverse(
-                tree,
-                block_map,
-                &child.hash,
-                child_prefix.clone(),
-                is_last,
-                out,
-                false,
-            );
-        }
-    }
-}
-
-pub fn generate_branch_display(blocks: &[Block]) -> Vec<BranchBlock> {
-    let block_map: HashMap<String, Block> =
-        blocks.iter().map(|b| (b.hash.clone(), b.clone())).collect();
-
-    let tree = build_tree(blocks);
-    let root = find_root(blocks).expect("No root block found");
-
-    let mut result = Vec::new();
-    collect_branch_blocks_reverse(
-        &tree,
-        &block_map,
-        &root.hash,
-        String::new(),
-        true,
-        &mut result,
-        true,
-    );
-    result.reverse();
-    result
 }
 
 #[cfg(test)]

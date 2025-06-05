@@ -1,7 +1,6 @@
 use askama::Template;
 
 use crate::models::Block;
-use crate::utils::{BranchBlock, generate_branch_display};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -46,15 +45,11 @@ pub fn get_block(
 #[derive(Template)]
 #[template(path = "blocks_overview.html")]
 struct BlocksTemplate {
-    blocks: Vec<BranchBlock>,
-    head_hash: String,
+    blocks: Vec<Block>,
 }
 
 pub fn get_blocks(blocks: Vec<Block>) -> String {
-    BlocksTemplate {
-        blocks: generate_branch_display(&blocks),
-        head_hash: blocks[0].hash.clone(),
-    }
-    .render()
-    .expect("Failed to render template")
+    BlocksTemplate { blocks }
+        .render()
+        .expect("Failed to render template")
 }
