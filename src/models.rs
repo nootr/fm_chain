@@ -137,13 +137,14 @@ impl Block {
                 };
 
             if children.is_empty() {
-                Self::update_longest_chain(
-                    chain_so_far,
-                    total_moves_so_far,
-                    &mut longest_chain,
-                    &mut max_length,
-                    &mut min_solution_moves,
-                );
+                let chain_length = chain_so_far.len();
+                if chain_length > max_length
+                    || (chain_length == max_length && total_moves_so_far < min_solution_moves)
+                {
+                    max_length = chain_length;
+                    min_solution_moves = total_moves_so_far;
+                    longest_chain = chain_so_far;
+                }
             } else {
                 for child in children {
                     let mut new_chain_so_far = chain_so_far.clone();
@@ -178,24 +179,6 @@ impl Block {
     // Helper function to find root blocks
     fn find_root_blocks(children_map: &HashMap<Option<String>, Vec<Block>>) -> Vec<Block> {
         children_map.get(&None).unwrap_or(&vec![]).clone()
-    }
-
-    // Helper function to update the longest chain found so far
-    fn update_longest_chain(
-        chain_so_far: Vec<Block>,
-        total_moves_so_far: u64,
-        longest_chain: &mut Vec<Block>,
-        max_length: &mut usize,
-        min_solution_moves: &mut u64,
-    ) {
-        let chain_length = chain_so_far.len();
-        if chain_length > *max_length
-            || (chain_length == *max_length && total_moves_so_far < *min_solution_moves)
-        {
-            *max_length = chain_length;
-            *min_solution_moves = total_moves_so_far;
-            *longest_chain = chain_so_far;
-        }
     }
 }
 
@@ -280,66 +263,6 @@ mod tests {
         let root_hashes: Vec<String> = root_blocks.iter().map(|b| b.hash.clone()).collect();
         assert!(root_hashes.contains(&"hash1".to_string()));
         assert!(root_hashes.contains(&"hash3".to_string()));
-    }
-
-    #[test]
-    fn test_update_longest_chain() {
-        let block1 = create_dummy_block("hash1", None, 0, 1);
-        let block2 = create_dummy_block("hash2", Some("hash1"), 1, 2);
-        let block3 = create_dummy_block("hash3", Some("hash2"), 2, 1);
-
-        let mut longest_chain: Vec<Block> = Vec::new();
-        let mut max_length: usize = 0;
-        let mut min_solution_moves: u64 = u64::MAX;
-
-        // Test with a shorter chain
-        Block::update_longest_chain(
-            vec![block1.clone()],
-            1,
-            &mut longest_chain,
-            &mut max_length,
-            &mut min_solution_moves,
-        );
-        assert_eq!(max_length, 1);
-        assert_eq!(min_solution_moves, 1);
-        assert_eq!(longest_chain[0].hash, "hash1");
-
-        // Test with a longer chain
-        Block::update_longest_chain(
-            vec![block1.clone(), block2.clone()],
-            3,
-            &mut longest_chain,
-            &mut max_length,
-            &mut min_solution_moves,
-        );
-        assert_eq!(max_length, 2);
-        assert_eq!(min_solution_moves, 3);
-        assert_eq!(longest_chain[1].hash, "hash2");
-
-        // Test with same length, but better solution moves
-        Block::update_longest_chain(
-            vec![block1.clone(), block2.clone(), block3.clone()],
-            4,
-            &mut longest_chain,
-            &mut max_length,
-            &mut min_solution_moves,
-        );
-        assert_eq!(max_length, 3);
-        assert_eq!(min_solution_moves, 4);
-        assert_eq!(longest_chain[2].hash, "hash3");
-
-        // Test with same length, worse solution moves (should not update)
-        let block_worse = create_dummy_block("hash_worse", Some("hash2"), 2, 10);
-        Block::update_longest_chain(
-            vec![block1.clone(), block2.clone(), block_worse.clone()],
-            13,
-            &mut longest_chain,
-            &mut max_length,
-            &mut min_solution_moves,
-        );
-        assert_eq!(max_length, 3);
-        assert_eq!(min_solution_moves, 4); // Should remain 4
-        assert_eq!(longest_chain[2].hash, "hash3"); // Should remain hash3
     }
 
     #[test]
