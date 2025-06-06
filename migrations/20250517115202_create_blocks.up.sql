@@ -10,15 +10,3 @@ CREATE TABLE blocks (
 
     FOREIGN KEY(parent_hash) REFERENCES blocks(hash) ON DELETE CASCADE
 );
-
--- Genesis block
-INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description)
-VALUES (
-    '65144AGB2624GB7A4D9D1C3C7777H30',
-    NULL,
-    0,
-    'Hi! - Nootr',
-    '',
-    0,
-    'Genesis block - no solution'
-);

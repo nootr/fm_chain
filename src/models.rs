@@ -61,6 +61,33 @@ impl Block {
         .await
     }
 
+    // Create a genesis block
+    pub async fn create_genesis(
+        db: &SqlitePool,
+        hash: &str,
+        message: &str,
+        solution: &str,
+        solution_moves: u8,
+        solution_description: &str,
+    ) -> Result<Self, sqlx::Error> {
+        let block = sqlx::query_as::<_, Block>(
+            "INSERT INTO blocks (
+                hash, height, message, solution, solution_moves, solution_description
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at",
+        )
+        .bind(hash)
+        .bind(0)
+        .bind(message)
+        .bind(solution)
+        .bind(solution_moves)
+        .bind(solution_description)
+        .fetch_one(db)
+        .await?;
+
+        Ok(block)
+    }
+
     // Create a child block
     pub async fn create_child(
         &self,
