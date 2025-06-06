@@ -4,7 +4,7 @@
   <div>{{ block.message }}</div>
   <button
     class="button button-ghost block-message"
-    hx-get="/block?parent_hash={{ block.hash }}&message="
+    hx-get="/block?parent_hash={{ block.hash }}"
     hx-swap="beforeend"
     hx-target="body"
     hx-trigger="click"
