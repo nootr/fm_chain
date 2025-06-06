@@ -57,35 +57,3 @@ impl Move {
         }
     }
 }
-
-pub fn parse_moves(s: &str) -> Vec<Move> {
-    let mut moves = Vec::new();
-    let mut chars = s.chars().peekable();
-
-    while let Some(c) = chars.next() {
-        let count = match chars.peek() {
-            Some('2') => {
-                chars.next();
-                2
-            }
-            Some('\'') => {
-                chars.next();
-                3
-            }
-            _ => 1,
-        };
-
-        let m = match c {
-            'U' => Move::U(count),
-            'D' => Move::D(count),
-            'L' => Move::L(count),
-            'R' => Move::R(count),
-            'F' => Move::F(count),
-            'B' => Move::B(count),
-            _ => continue,
-        };
-        moves.push(m);
-    }
-
-    moves
-}

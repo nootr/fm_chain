@@ -3,6 +3,37 @@ use sha2::{Digest, Sha256};
 
 use crate::cube::Move;
 
+pub fn parse_moves(s: &str) -> Vec<Move> {
+    let mut moves = Vec::new();
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        let count = match chars.peek() {
+            Some('2') => {
+                chars.next();
+                2
+            }
+            Some('\'') => {
+                chars.next();
+                3
+            }
+            _ => 1,
+        };
+
+        let m = match c {
+            'U' => Move::U(count),
+            'D' => Move::D(count),
+            'L' => Move::L(count),
+            'R' => Move::R(count),
+            'F' => Move::F(count),
+            'B' => Move::B(count),
+            _ => continue,
+        };
+        moves.push(m);
+    }
+
+    moves
+}
 pub fn format_data(parent_hash: String, message: String) -> Vec<u8> {
     format!("{}|{}", parent_hash, message).as_bytes().to_vec()
 }
@@ -90,9 +121,9 @@ pub fn format_moves(moves: &[Move]) -> String {
     formatted
 }
 
-pub fn verify_solution(raw_scramble: &[Move], raw_solution: &[Move]) -> bool {
-    let scramble = Algorithm::from(&format_moves(raw_scramble)).unwrap();
-    let solution = Algorithm::from(&format_moves(raw_solution)).unwrap();
+pub fn verify_solution(scramble: &[Move], solution: &[Move]) -> bool {
+    let scramble = Algorithm::from(&format_moves(scramble)).unwrap();
+    let solution = Algorithm::from(&format_moves(solution)).unwrap();
     solution.solves(&scramble)
 }
 
@@ -119,5 +150,40 @@ mod tests {
         let expected = vec![Move::R(1), Move::U(3), Move::B(1)];
 
         assert_eq!(scramble, expected);
+    }
+
+    #[test]
+    fn test_verify_solution_ok() {
+        // Data source: https://www.fewest-moves.info/archive/468
+        let scramble_raw =
+            "R' U' F L2 B2 L2 F2 D U L2 U F2 U' R D2 U' F' L D2 F D' U2 B2 U' R' U' F";
+        let scramble = parse_moves(scramble_raw);
+        let solves_raw = [
+            "D L' U F2 B2 L2 U2 B2 D' L2 F2 U2 B2 F' U' L2 F2 U B' U R D'",
+            "F2 D2 F2 L R2 U2 L B2 U2 L B2 L' B2 U2 F' L R2 F2 D2 L F D' L' B2 U",
+            "B D' R' D L' D' R F' D B2 D' F D' B L' B' L2 B R' U2 D2 R D' B2 L' U",
+            "B' U' L R F D' R2 D L2 F2 U' B2 L R D2 L' R B2 U' R' U L2 U D' R2 D2 F2",
+            "D2 F2 U D B2 U' D F2 B D2 R2 B D2 R2 F D2 L B R2 D2 F' L' F' D' L' B2 U",
+            "B L' B2 D2 L F' L B L' F L' B' L B L2 R' U2 D2 R2 U2 R' D' R U2 R' B2 L' U",
+            "L F' L' B' L F L' D2 L U R B L U' L' D2 L U D' L2 B2 R' B L B' R2 D R'",
+            "L F2 L' D2 F2 L' B2 U2 R' U2 B2 L2 R2 U2 B2 F' R2 L U D' L2 U' D' L F D' L' B2 U",
+            "B' L U2 R F D2 R U2 R2 U B2 R2 U' R2 U2 R2 U' R2 U' F2 U R' F2 R U2 D R2 B2 U2",
+        ];
+
+        for solve_raw in solves_raw {
+            let mut solve = parse_moves(solve_raw);
+            assert!(
+                verify_solution(&scramble, &solve),
+                "[{}] Moves should solve cube",
+                solve_raw
+            );
+
+            solve.extend(vec![Move::U(1)]);
+            assert!(
+                !verify_solution(&scramble, &solve),
+                "[{} U] Moves should not solve cube",
+                solve_raw
+            );
+        }
     }
 }

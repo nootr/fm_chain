@@ -2,11 +2,10 @@ use actix_files::NamedFile;
 use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
 
-use crate::cube::parse_moves;
 use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
-    calculate_hash, cleanup_scramble, format_data, format_moves, scramble_from_hash,
+    calculate_hash, cleanup_scramble, format_data, format_moves, parse_moves, scramble_from_hash,
     verify_solution,
 };
 use crate::views;
