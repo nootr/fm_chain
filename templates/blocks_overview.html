@@ -1,13 +1,15 @@
 {% for block in blocks %}
 <li class="block">
-  <pre><span class="hash">{{ block.short_hash() }}</span><button
+  <span class="hash">{{ block.short_hash() }}</span>
+  <div>{{ block.message }}</div>
+  <button
     class="button button-ghost block-message"
     hx-get="/block?parent_hash={{ block.hash }}&message="
     hx-swap="beforeend"
     hx-target="body"
     hx-trigger="click"
     :disabled="disabled"
-  > {{ block.message }}</button></pre>
+  >Add child</button>
 </li>
 {% endfor %}
 {% if blocks.len() as u32 == page_size %}

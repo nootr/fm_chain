@@ -34,7 +34,8 @@ pub fn parse_moves(s: &str) -> Vec<Move> {
 
     moves
 }
-pub fn format_data(parent_hash: String, message: String) -> Vec<u8> {
+
+pub fn format_data(parent_hash: &str, message: &str) -> Vec<u8> {
     format!("{}|{}", parent_hash, message).as_bytes().to_vec()
 }
 

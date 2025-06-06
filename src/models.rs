@@ -94,15 +94,19 @@ impl Block {
         self.hash.chars().take(8).collect()
     }
 
+    pub async fn find_main_chain_head(db: &SqlitePool) -> Result<Block, sqlx::Error> {
+        Ok(Self::find_longest_chain(db, None, None).await?[0].clone())
+    }
+
     // Public function to find the longest chain
     pub async fn find_longest_chain(
         db: &SqlitePool,
-        _page_size: u32,
-        _page_offset: u32,
+        _page_size: Option<u32>,
+        _page_offset: Option<u32>,
     ) -> Result<Vec<Block>, sqlx::Error> {
         let all_blocks = Self::find_all(db, None, None)
             .await
-            .expect("Should fetch all blocks");
+            .expect("Unable to fetch all blocks");
         // TODO: pagination
         Self::get_longest_chain_from_blocks(all_blocks)
     }

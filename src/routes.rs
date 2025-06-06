@@ -22,24 +22,37 @@ async fn get_index() -> impl Responder {
 
 #[derive(Deserialize)]
 struct InitialBlockInfo {
-    parent_hash: String,
-    message: String,
+    parent_hash: Option<String>,
+    message: Option<String>,
 }
 
 #[get("/block")]
-async fn get_block(block_info: web::Query<InitialBlockInfo>) -> impl Responder {
-    let data = format_data(block_info.parent_hash.clone(), block_info.message.clone());
+async fn get_block(
+    db: web::Data<sqlx::SqlitePool>,
+    block_info: web::Query<InitialBlockInfo>,
+) -> impl Responder {
+    let parent_hash = match &block_info.parent_hash {
+        Some(x) => x.clone(),
+        None => {
+            Block::find_main_chain_head(&db)
+                .await
+                .expect("Unable to find head")
+                .hash
+        }
+    };
+    let message = block_info.message.clone().unwrap_or_default();
+    let data = format_data(&parent_hash, &message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = match block_info.message.len() {
+    let scramble = match &message.len() {
         0 => None,
         _ => Some(format_moves(&raw_scramble)),
     };
 
     HttpResponse::Ok().body(views::get_block(
-        &block_info.parent_hash,
-        &block_info.message,
+        &parent_hash,
+        &message,
         scramble.as_deref(),
         &hash,
         "",
@@ -60,7 +73,7 @@ async fn post_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
-    let data = format_data(block_info.parent_hash.clone(), block_info.message.clone());
+    let data = format_data(&block_info.parent_hash, &block_info.message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
@@ -80,7 +93,7 @@ async fn post_block(
         }
     };
 
-    let data = format_data(parent_block.hash.clone(), block_info.message.clone());
+    let data = format_data(&parent_block.hash, &block_info.message);
     let hash = calculate_hash(&data);
     let raw_scramble = scramble_from_hash(&hash);
     let parsed_solution = parse_moves(&block_info.solution);
@@ -142,7 +155,7 @@ async fn get_blocks(
             .await
             .expect("Unable to fetch all blocks")
     } else {
-        Block::find_longest_chain(&db, page_size, page_offset)
+        Block::find_longest_chain(&db, Some(page_size), Some(page_offset))
             .await
             .expect("Unable to fetch longest chain")
     };

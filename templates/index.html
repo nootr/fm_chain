@@ -2,20 +2,29 @@
 
 {% block content %}
   <div class="loading-line"></div>
-  <ul
-    hx-get="/blocks?all=true"
-    hx-swap="innerHTML"
-    hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
-    x-data="{
-      disabled: false,
-      observer: null,
-      init() {
-        // Observe the body for changes to enable/disable the button
-        this.observer = new MutationObserver(() => {
-          this.disabled = document.querySelector('#block-form') !== null;
-        });
-        this.observer.observe(document.body, { childList: true, subtree: true });
-      },
-    }"
-    ></ul>
+  <div class="screen">
+    <button
+      class="button button-ghost"
+      hx-get="/block"
+      hx-swap="beforeend"
+      hx-target="body"
+      hx-trigger="click"
+    >Solve a cube to create a new block!</button>
+    <ul
+      hx-get="/blocks?all=true"
+      hx-swap="innerHTML"
+      hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
+      x-data="{
+        disabled: false,
+        observer: null,
+        init() {
+          // Observe the body for changes to enable/disable the button
+          this.observer = new MutationObserver(() => {
+            this.disabled = document.querySelector('#block-form') !== null;
+          });
+          this.observer.observe(document.body, { childList: true, subtree: true });
+        },
+      }"
+      ></ul>
+  </div>
 {% endblock %}
