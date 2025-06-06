@@ -101,14 +101,29 @@ impl Block {
     // Public function to find the longest chain
     pub async fn find_longest_chain(
         db: &SqlitePool,
-        _page_size: Option<u32>,
-        _page_offset: Option<u32>,
+        page_size: Option<u32>,
+        page_offset: Option<u32>,
     ) -> Result<Vec<Block>, sqlx::Error> {
         let all_blocks = Self::find_all(db, None, None)
             .await
             .expect("Unable to fetch all blocks");
-        // TODO: pagination
-        Self::get_longest_chain_from_blocks(all_blocks)
+
+        let mut longest_chain = Self::get_longest_chain_from_blocks(all_blocks)?;
+
+        // Apply pagination
+        if let Some(offset) = page_offset {
+            let offset = offset as usize;
+            if offset >= longest_chain.len() {
+                return Ok(Vec::new());
+            }
+            longest_chain = longest_chain.drain(offset..).collect();
+        }
+
+        if let Some(size) = page_size {
+            longest_chain.truncate(size as usize);
+        }
+
+        Ok(longest_chain)
     }
 
     // Helper function to process blocks and find the longest chain
@@ -279,9 +294,9 @@ mod tests {
         let longest_chain = Block::get_longest_chain_from_blocks(all_blocks).unwrap();
 
         assert_eq!(longest_chain.len(), 3);
-        assert_eq!(longest_chain[0].hash, "hash3"); // Newest first
+        assert_eq!(longest_chain[0].hash, "hash3");
         assert_eq!(longest_chain[1].hash, "hash2");
-        assert_eq!(longest_chain[2].hash, "hash1"); // Root last
+        assert_eq!(longest_chain[2].hash, "hash1");
     }
 
     #[test]
@@ -304,10 +319,10 @@ mod tests {
         let longest_chain = Block::get_longest_chain_from_blocks(all_blocks).unwrap();
 
         assert_eq!(longest_chain.len(), 4);
-        assert_eq!(longest_chain[0].hash, "hash4b"); // Newest first
+        assert_eq!(longest_chain[0].hash, "hash4b");
         assert_eq!(longest_chain[1].hash, "hash3b");
         assert_eq!(longest_chain[2].hash, "hash2b");
-        assert_eq!(longest_chain[3].hash, "hash1"); // Root last
+        assert_eq!(longest_chain[3].hash, "hash1");
     }
 
     #[test]
@@ -329,9 +344,9 @@ mod tests {
         let longest_chain = Block::get_longest_chain_from_blocks(all_blocks).unwrap();
 
         assert_eq!(longest_chain.len(), 3);
-        assert_eq!(longest_chain[0].hash, "hash3b"); // Newest first
+        assert_eq!(longest_chain[0].hash, "hash3b");
         assert_eq!(longest_chain[1].hash, "hash2b");
-        assert_eq!(longest_chain[2].hash, "hash1"); // Root last
+        assert_eq!(longest_chain[2].hash, "hash1");
     }
 
     #[test]
@@ -359,5 +374,141 @@ mod tests {
 
         // Expect empty because there are multiple root blocks, violating the assumption.
         assert!(longest_chain.is_empty());
+    }
+
+    #[actix_web::test]
+    async fn test_find_longest_chain_pagination_full_chain() {
+        let db_pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        sqlx::query(
+            "CREATE TABLE blocks (
+                hash TEXT PRIMARY KEY NOT NULL,
+                parent_hash TEXT,
+                height INTEGER NOT NULL,
+                message TEXT NOT NULL,
+                solution TEXT NOT NULL,
+                solution_moves INTEGER NOT NULL,
+                solution_description TEXT NOT NULL,
+                created_at DATETIME
+            );",
+        )
+        .execute(&db_pool)
+        .await
+        .unwrap();
+
+        let block1 = create_dummy_block("hash1", None, 0, 1);
+        let block2 = create_dummy_block("hash2", Some("hash1"), 1, 2);
+        let block3 = create_dummy_block("hash3", Some("hash2"), 2, 3);
+        let block4 = create_dummy_block("hash4", Some("hash3"), 3, 1);
+        let block5 = create_dummy_block("hash5", Some("hash4"), 4, 1);
+
+        // Insert blocks
+        sqlx::query(
+            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&block1.hash)
+        .bind(&block1.parent_hash)
+        .bind(block1.height)
+        .bind(&block1.message)
+        .bind(&block1.solution)
+        .bind(block1.solution_moves as i64)
+        .bind(&block1.solution_description)
+        .bind(block1.created_at)
+        .execute(&db_pool)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&block2.hash)
+        .bind(&block2.parent_hash)
+        .bind(block2.height)
+        .bind(&block2.message)
+        .bind(&block2.solution)
+        .bind(block2.solution_moves as i64)
+        .bind(&block2.solution_description)
+        .bind(block2.created_at)
+        .execute(&db_pool)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&block3.hash)
+        .bind(&block3.parent_hash)
+        .bind(block3.height)
+        .bind(&block3.message)
+        .bind(&block3.solution)
+        .bind(block3.solution_moves as i64)
+        .bind(&block3.solution_description)
+        .bind(block3.created_at)
+        .execute(&db_pool)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&block4.hash)
+        .bind(&block4.parent_hash)
+        .bind(block4.height)
+        .bind(&block4.message)
+        .bind(&block4.solution)
+        .bind(block4.solution_moves as i64)
+        .bind(&block4.solution_description)
+        .bind(block4.created_at)
+        .execute(&db_pool)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(&block5.hash)
+        .bind(&block5.parent_hash)
+        .bind(block5.height)
+        .bind(&block5.message)
+        .bind(&block5.solution)
+        .bind(block5.solution_moves as i64)
+        .bind(&block5.solution_description)
+        .bind(block5.created_at)
+        .execute(&db_pool)
+        .await
+        .unwrap();
+
+        // Test with page_size and no offset
+        let paginated_chain = Block::find_longest_chain(&db_pool, Some(3), None)
+            .await
+            .unwrap();
+        assert_eq!(paginated_chain.len(), 3);
+        assert_eq!(paginated_chain[0].hash, "hash5");
+        assert_eq!(paginated_chain[1].hash, "hash4");
+        assert_eq!(paginated_chain[2].hash, "hash3");
+
+        // Test with offset and no page_size
+        let paginated_chain = Block::find_longest_chain(&db_pool, None, Some(2))
+            .await
+            .unwrap();
+        assert_eq!(paginated_chain.len(), 3);
+        assert_eq!(paginated_chain[0].hash, "hash3");
+        assert_eq!(paginated_chain[1].hash, "hash2");
+        assert_eq!(paginated_chain[2].hash, "hash1");
+
+        // Test with both page_size and offset
+        let paginated_chain = Block::find_longest_chain(&db_pool, Some(2), Some(1))
+            .await
+            .unwrap();
+        assert_eq!(paginated_chain.len(), 2);
+        assert_eq!(paginated_chain[0].hash, "hash4");
+        assert_eq!(paginated_chain[1].hash, "hash3");
+
+        // Test offset beyond chain length
+        let paginated_chain = Block::find_longest_chain(&db_pool, None, Some(10))
+            .await
+            .unwrap();
+        assert!(paginated_chain.is_empty());
+
+        // Test page_size 0
+        let paginated_chain = Block::find_longest_chain(&db_pool, Some(0), None)
+            .await
+            .unwrap();
+        assert!(paginated_chain.is_empty());
     }
 }

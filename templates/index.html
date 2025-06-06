@@ -11,7 +11,7 @@
       hx-trigger="click"
     >Solve a cube to create a new block!</button>
     <ul
-      hx-get="/blocks?all=true"
+      hx-get="/blocks"
       hx-swap="innerHTML"
       hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
       x-data="{
