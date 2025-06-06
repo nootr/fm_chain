@@ -31,14 +31,13 @@ async fn get_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
+    let main_chain_head_hash = Block::find_main_chain_head(&db)
+        .await
+        .expect("Unable to find head")
+        .hash;
     let parent_hash = match &block_info.parent_hash {
         Some(x) => x.clone(),
-        None => {
-            Block::find_main_chain_head(&db)
-                .await
-                .expect("Unable to find head")
-                .hash
-        }
+        None => main_chain_head_hash.clone(),
     };
     let message = block_info.message.clone().unwrap_or_default();
     let data = format_data(&parent_hash, &message);
@@ -52,6 +51,7 @@ async fn get_block(
 
     HttpResponse::Ok().body(views::get_block(
         &parent_hash,
+        parent_hash == main_chain_head_hash,
         &message,
         scramble.as_deref(),
         &hash,
@@ -73,6 +73,10 @@ async fn post_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
+    let main_chain_head_hash = Block::find_main_chain_head(&db)
+        .await
+        .expect("Unable to find head")
+        .hash;
     let data = format_data(&block_info.parent_hash, &block_info.message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
@@ -83,6 +87,7 @@ async fn post_block(
         Err(_) => {
             let resp = HttpResponse::Ok().body(views::get_block(
                 &block_info.parent_hash,
+                block_info.parent_hash == main_chain_head_hash,
                 &block_info.message,
                 Some(&scramble),
                 &hash,
@@ -101,6 +106,7 @@ async fn post_block(
     if !verify_solution(&raw_scramble, &parsed_solution) {
         let resp = HttpResponse::Ok().body(views::get_block(
             &block_info.parent_hash,
+            block_info.parent_hash == main_chain_head_hash,
             &block_info.message,
             Some(&scramble),
             &hash,

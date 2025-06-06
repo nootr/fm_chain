@@ -6,6 +6,7 @@ use crate::models::Block;
 #[template(path = "block_form.html")]
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
+    parent_is_head: bool,
     message: &'a str,
     scramble: Option<&'a str>,
     hash: &'a str,
@@ -16,6 +17,7 @@ struct BlockFormTemplate<'a> {
 #[allow(clippy::too_many_arguments)]
 pub fn get_block(
     parent_hash: &str,
+    parent_is_head: bool,
     message: &str,
     scramble: Option<&str>,
     hash: &str,
@@ -24,6 +26,7 @@ pub fn get_block(
 ) -> String {
     BlockFormTemplate {
         parent_hash,
+        parent_is_head,
         message,
         scramble,
         hash,

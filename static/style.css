@@ -124,6 +124,15 @@ main {
     margin: 0;
 }
 
+.warning {
+    color: var(--text-primary);
+    background-color: var(--error-bg);
+    border: 1px solid var(--error-color);
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
 .modal {
   position: fixed;
   top: 4rem;
