@@ -17,7 +17,7 @@ async fn favicon() -> impl Responder {
 
 #[get("/")]
 async fn get_index() -> impl Responder {
-    HttpResponse::Ok().body(views::get_index())
+    NamedFile::open_async("static/index.html").await
 }
 
 #[derive(Deserialize)]

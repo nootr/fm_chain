@@ -3,14 +3,6 @@ use askama::Template;
 use crate::models::Block;
 
 #[derive(Template)]
-#[template(path = "index.html")]
-struct IndexTemplate;
-
-pub fn get_index() -> String {
-    IndexTemplate.render().expect("Failed to render template")
-}
-
-#[derive(Template)]
 #[template(path = "block_form.html")]
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
