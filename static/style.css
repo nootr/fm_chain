@@ -1,3 +1,5 @@
+[x-cloak] { display: none !important; }
+
 :root {
   --bg-primary: #030712;
   --bg-secondary: #111827;
