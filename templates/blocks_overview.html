@@ -7,8 +7,7 @@
     hx-get="/block?parent_hash={{ block.hash }}"
     hx-swap="beforeend"
     hx-target="body"
-    hx-trigger="click"
-    :disabled="disabled"
+    hx-trigger="click[!document.querySelector('.modal')]"
   >Add child</button>
 </li>
 {% endfor %}

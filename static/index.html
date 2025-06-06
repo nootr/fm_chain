@@ -9,6 +9,7 @@
     <script defer src="/static/alpine.js"></script>
   </head>
   <body>
+    <div class="loading-line"></div>
     <div x-data="{
       messageData: null,
 
@@ -76,32 +77,25 @@
     </header>
     <main>
       <div class="container">
-        <div class="loading-line"></div>
         <div class="screen">
           <button
             class="button button-ghost"
             hx-get="/block"
             hx-swap="beforeend"
             hx-target="body"
-            hx-trigger="click"
+            hx-trigger="click[!document.querySelector('.modal')]"
           >Solve a cube to create a new block!</button>
           <ul
             hx-get="/blocks"
             hx-swap="innerHTML"
             hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
-            x-data="{
-              disabled: false,
-              observer: null,
-              init() {
-                // Observe the body for changes to enable/disable the button
-                this.observer = new MutationObserver(() => {
-                  this.disabled = document.querySelector('#block-form') !== null;
-                });
-                this.observer.observe(document.body, { childList: true, subtree: true });
-              },
-            }"
             >
-            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            <div class="lds-ellipsis">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
           </ul>
         </div>
       </div>
