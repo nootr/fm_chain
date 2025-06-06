@@ -70,7 +70,7 @@ impl Block {
         solution_moves: u8,
         solution_description: &str,
     ) -> Result<Self, sqlx::Error> {
-        let block = sqlx::query_as::<_, Block>(
+        sqlx::query_as::<_, Block>(
             "INSERT INTO blocks (
                 hash, height, message, solution, solution_moves, solution_description
             ) VALUES (?, ?, ?, ?, ?, ?)
@@ -83,9 +83,7 @@ impl Block {
         .bind(solution_moves)
         .bind(solution_description)
         .fetch_one(db)
-        .await?;
-
-        Ok(block)
+        .await
     }
 
     // Create a child block
@@ -98,7 +96,7 @@ impl Block {
         solution_moves: u8,
         solution_description: &str,
     ) -> Result<Self, sqlx::Error> {
-        let block = sqlx::query_as::<_, Block>(
+        sqlx::query_as::<_, Block>(
             "INSERT INTO blocks (
                 hash, parent_hash, height, message, solution, solution_moves, solution_description
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -112,9 +110,7 @@ impl Block {
         .bind(solution_moves)
         .bind(solution_description)
         .fetch_one(db)
-        .await?;
-
-        Ok(block)
+        .await
     }
 
     pub fn short_hash(&self) -> String {

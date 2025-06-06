@@ -34,13 +34,11 @@ impl FlashMessage {
         FlashMessage::new(FlashMessageLevel::Error, message)
     }
 
-    pub fn set(&self, resp: HttpResponse) -> HttpResponse {
+    pub fn set(&self, mut resp: HttpResponse) -> HttpResponse {
         let cookie = Cookie::build(FLASH_COOKIE_NAME, serde_json::to_string(self).unwrap())
             .path("/")
             .max_age(Duration::minutes(1))
             .finish();
-
-        let mut resp = resp;
         resp.add_cookie(&cookie).unwrap();
         resp
     }
