@@ -133,7 +133,7 @@ async fn get_blocks(
     query_params: web::Query<BlockQueryParams>,
 ) -> impl Responder {
     let show_all = query_params.all.unwrap_or(false);
-    let page_size = query_params.page_size.unwrap_or(2);
+    let page_size = query_params.page_size.unwrap_or(10);
     let page_offset = query_params.page_offset.unwrap_or(0);
     let next_offset = page_offset + page_size;
 
@@ -147,5 +147,5 @@ async fn get_blocks(
             .expect("Unable to fetch longest chain")
     };
 
-    HttpResponse::Ok().body(views::get_blocks(blocks, next_offset, show_all))
+    HttpResponse::Ok().body(views::get_blocks(blocks, next_offset, page_size, show_all))
 }

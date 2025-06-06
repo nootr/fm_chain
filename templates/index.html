@@ -2,7 +2,7 @@
 
 {% block content %}
   <div class="loading-line"></div>
-  <div
+  <ul
     hx-get="/blocks?all=true"
     hx-swap="innerHTML"
     hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
@@ -17,5 +17,5 @@
         this.observer.observe(document.body, { childList: true, subtree: true });
       },
     }"
-    ></div>
+    ></ul>
 {% endblock %}

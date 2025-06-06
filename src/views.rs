@@ -47,13 +47,15 @@ pub fn get_block(
 struct BlocksTemplate {
     blocks: Vec<Block>,
     next_offset: u32,
+    page_size: u32,
     show_all: bool,
 }
 
-pub fn get_blocks(blocks: Vec<Block>, next_offset: u32, show_all: bool) -> String {
+pub fn get_blocks(blocks: Vec<Block>, next_offset: u32, page_size: u32, show_all: bool) -> String {
     BlocksTemplate {
         blocks,
         next_offset,
+        page_size,
         show_all,
     }
     .render()
