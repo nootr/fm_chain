@@ -216,7 +216,7 @@ main {
   resize: vertical;
 }
 
-.form-textarea[readonly] {
+input[readonly], .form-textarea[readonly] {
   color: var(--text-muted);
 }
 
