@@ -23,8 +23,10 @@
       <p class="card-description">Solve the cube in as few moves as possible to hash a new block</p>
     </div>
     <div class="card-content">
-      <!-- TODO: send on both name and message change, if both non-empty -->
-      <form id="get-scramble-form">
+      <form
+        id="get-scramble-form"
+        x-data="{ 'name': $persist('{{ name }}') }"
+        >
         <div id="formContent">
           <div class="form-group">
             <label for="parent_hash" class="form-label">Parent block</label>
@@ -38,8 +40,8 @@
             <input
               id="name"
               name="name"
+              x-model="name"
               class="form-input"
-              value="{{ name }}"
               hx-trigger="keyup changed delay:800ms"
               hx-get="/block"
               hx-target="#block-form"
