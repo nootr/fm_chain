@@ -2,6 +2,7 @@ CREATE TABLE blocks (
     hash TEXT PRIMARY KEY,
     parent_hash TEXT,
     height INTEGER NOT NULL,
+    name TEXT NOT NULL,
     message TEXT NOT NULL,
     solution TEXT NOT NULL,
     solution_moves INTEGER NOT NULL,

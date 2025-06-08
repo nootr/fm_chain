@@ -1,6 +1,7 @@
 {% for block in blocks %}
 <li class="block">
   <span class="hash">{{ block.short_hash() }}</span>
+  <p>{{ block.name }}</p>
   <pre>{{ block.message }}</pre>
   <button
     class="button button-ghost block-message"

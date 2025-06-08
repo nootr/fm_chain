@@ -7,6 +7,7 @@ use crate::models::Block;
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
     parent_is_head: bool,
+    name: &'a str,
     message: &'a str,
     scramble: Option<&'a str>,
     hash: &'a str,
@@ -18,6 +19,7 @@ struct BlockFormTemplate<'a> {
 pub fn get_block(
     parent_hash: &str,
     parent_is_head: bool,
+    name: &str,
     message: &str,
     scramble: Option<&str>,
     hash: &str,
@@ -27,6 +29,7 @@ pub fn get_block(
     BlockFormTemplate {
         parent_hash,
         parent_is_head,
+        name,
         message,
         scramble,
         hash,

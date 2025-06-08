@@ -7,6 +7,7 @@ pub struct Block {
     pub hash: String,
     pub parent_hash: Option<String>,
     pub height: i64,
+    pub name: String,
     pub message: String,
     pub solution: String,
     pub solution_moves: u8,
@@ -22,7 +23,7 @@ impl Block {
         page_offset: Option<u32>,
     ) -> Result<Vec<Block>, sqlx::Error> {
         let mut query_str = String::from(
-            "SELECT hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at
+            "SELECT hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
              FROM blocks
              ORDER BY
                  height DESC,
@@ -52,7 +53,7 @@ impl Block {
     // Fetch a block by hash
     pub async fn find_by_hash(db: &SqlitePool, hash: &str) -> Result<Block, sqlx::Error> {
         sqlx::query_as::<_, Block>(
-            "SELECT hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at
+            "SELECT hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
              FROM blocks
              WHERE hash = ?",
         )
@@ -65,6 +66,7 @@ impl Block {
     pub async fn create_genesis(
         db: &SqlitePool,
         hash: &str,
+        name: &str,
         message: &str,
         solution: &str,
         solution_moves: u8,
@@ -72,12 +74,13 @@ impl Block {
     ) -> Result<Self, sqlx::Error> {
         sqlx::query_as::<_, Block>(
             "INSERT INTO blocks (
-                hash, height, message, solution, solution_moves, solution_description
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            RETURNING hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at",
+                hash, height, name, message, solution, solution_moves, solution_description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            RETURNING hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
         )
         .bind(hash)
         .bind(0)
+        .bind(name)
         .bind(message)
         .bind(solution)
         .bind(solution_moves)
@@ -87,10 +90,12 @@ impl Block {
     }
 
     // Create a child block
+    #[allow(clippy::too_many_arguments)]
     pub async fn create_child(
         &self,
         db: &SqlitePool,
         hash: &str,
+        name: &str,
         message: &str,
         solution: &str,
         solution_moves: u8,
@@ -98,13 +103,14 @@ impl Block {
     ) -> Result<Self, sqlx::Error> {
         sqlx::query_as::<_, Block>(
             "INSERT INTO blocks (
-                hash, parent_hash, height, message, solution, solution_moves, solution_description
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at",
+                hash, parent_hash, height, name, message, solution, solution_moves, solution_description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            RETURNING hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
         )
         .bind(hash)
         .bind(&self.hash)
         .bind(self.height + 1)
+        .bind(name)
         .bind(message)
         .bind(solution)
         .bind(solution_moves)
@@ -239,6 +245,7 @@ mod tests {
             hash: hash.to_string(),
             parent_hash: parent_hash.map(|s| s.to_string()),
             height,
+            name: "nootr".to_string(),
             message: "test".to_string(),
             solution: "U".to_string(),
             solution_moves,
@@ -407,6 +414,7 @@ mod tests {
                 hash TEXT PRIMARY KEY NOT NULL,
                 parent_hash TEXT,
                 height INTEGER NOT NULL,
+                name TEXT NOT NULL,
                 message TEXT NOT NULL,
                 solution TEXT NOT NULL,
                 solution_moves INTEGER NOT NULL,
@@ -426,11 +434,12 @@ mod tests {
 
         // Insert blocks
         sqlx::query(
-            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO blocks (hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&block1.hash)
         .bind(&block1.parent_hash)
         .bind(block1.height)
+        .bind(&block1.name)
         .bind(&block1.message)
         .bind(&block1.solution)
         .bind(block1.solution_moves as i64)
@@ -440,11 +449,12 @@ mod tests {
         .await
         .unwrap();
         sqlx::query(
-            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO blocks (hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&block2.hash)
         .bind(&block2.parent_hash)
         .bind(block2.height)
+        .bind(&block2.name)
         .bind(&block2.message)
         .bind(&block2.solution)
         .bind(block2.solution_moves as i64)
@@ -454,11 +464,12 @@ mod tests {
         .await
         .unwrap();
         sqlx::query(
-            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO blocks (hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&block3.hash)
         .bind(&block3.parent_hash)
         .bind(block3.height)
+        .bind(&block3.name)
         .bind(&block3.message)
         .bind(&block3.solution)
         .bind(block3.solution_moves as i64)
@@ -468,11 +479,12 @@ mod tests {
         .await
         .unwrap();
         sqlx::query(
-            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO blocks (hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&block4.hash)
         .bind(&block4.parent_hash)
         .bind(block4.height)
+        .bind(&block4.name)
         .bind(&block4.message)
         .bind(&block4.solution)
         .bind(block4.solution_moves as i64)
@@ -482,11 +494,12 @@ mod tests {
         .await
         .unwrap();
         sqlx::query(
-            "INSERT INTO blocks (hash, parent_hash, height, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO blocks (hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(&block5.hash)
         .bind(&block5.parent_hash)
         .bind(block5.height)
+        .bind(&block5.name)
         .bind(&block5.message)
         .bind(&block5.solution)
         .bind(block5.solution_moves as i64)

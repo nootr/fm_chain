@@ -35,8 +35,10 @@ pub fn parse_moves(s: &str) -> Vec<Move> {
     moves
 }
 
-pub fn format_data(parent_hash: &str, message: &str) -> Vec<u8> {
-    format!("{}|{}", parent_hash, message).as_bytes().to_vec()
+pub fn format_data(parent_hash: &str, name: &str, message: &str) -> Vec<u8> {
+    format!("{}|{}|{}", parent_hash, name, message)
+        .as_bytes()
+        .to_vec()
 }
 
 pub fn calculate_hash(data: &[u8]) -> String {

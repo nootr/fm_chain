@@ -23,8 +23,9 @@ async fn main() -> std::io::Result<()> {
         return Ok(());
     }
 
-    let message = "✨ Hi, Pip!";
-    let data = utils::format_data("", message);
+    let name = "Nootr";
+    let message = "♥️";
+    let data = utils::format_data("", name, message);
     let hash = utils::calculate_hash(&data);
     let scramble = utils::scramble_from_hash(&hash);
     let solution = scramble
@@ -42,6 +43,7 @@ async fn main() -> std::io::Result<()> {
     let block = Block::create_genesis(
         &db,
         &hash,
+        name,
         message,
         &utils::format_moves(&solution),
         solution.len() as u8,

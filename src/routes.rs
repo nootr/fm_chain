@@ -23,6 +23,7 @@ async fn get_index() -> impl Responder {
 #[derive(Deserialize)]
 struct InitialBlockInfo {
     parent_hash: Option<String>,
+    name: Option<String>,
     message: Option<String>,
 }
 
@@ -39,19 +40,21 @@ async fn get_block(
         Some(x) => x.clone(),
         None => main_chain_head_hash.clone(),
     };
+    let name = block_info.name.clone().unwrap_or_default();
     let message = block_info.message.clone().unwrap_or_default();
-    let data = format_data(&parent_hash, &message);
+    let data = format_data(&parent_hash, &name, &message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = match &message.len() {
-        0 => None,
-        _ => Some(format_moves(&raw_scramble)),
+    let scramble = match message.is_empty() || name.is_empty() {
+        true => None,
+        false => Some(format_moves(&raw_scramble)),
     };
 
     HttpResponse::Ok().body(views::get_block(
         &parent_hash,
         parent_hash == main_chain_head_hash,
+        &name,
         &message,
         scramble.as_deref(),
         &hash,
@@ -63,6 +66,7 @@ async fn get_block(
 #[derive(Debug, Deserialize)]
 struct CompleteBlockInfo {
     parent_hash: String,
+    name: String,
     message: String,
     solution: String,
     solution_description: String,
@@ -77,7 +81,11 @@ async fn post_block(
         .await
         .expect("Unable to find head")
         .hash;
-    let data = format_data(&block_info.parent_hash, &block_info.message);
+    let data = format_data(
+        &block_info.parent_hash,
+        &block_info.name,
+        &block_info.message,
+    );
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
@@ -88,6 +96,7 @@ async fn post_block(
             let resp = HttpResponse::Ok().body(views::get_block(
                 &block_info.parent_hash,
                 block_info.parent_hash == main_chain_head_hash,
+                &block_info.name,
                 &block_info.message,
                 Some(&scramble),
                 &hash,
@@ -98,7 +107,7 @@ async fn post_block(
         }
     };
 
-    let data = format_data(&parent_block.hash, &block_info.message);
+    let data = format_data(&parent_block.hash, &block_info.name, &block_info.message);
     let hash = calculate_hash(&data);
     let raw_scramble = scramble_from_hash(&hash);
     let parsed_solution = parse_moves(&block_info.solution);
@@ -107,6 +116,7 @@ async fn post_block(
         let resp = HttpResponse::Ok().body(views::get_block(
             &block_info.parent_hash,
             block_info.parent_hash == main_chain_head_hash,
+            &block_info.name,
             &block_info.message,
             Some(&scramble),
             &hash,
@@ -123,6 +133,7 @@ async fn post_block(
         .create_child(
             &db,
             &hash,
+            &block_info.name,
             &block_info.message,
             &format_moves(&raw_scramble),
             parsed_solution.len() as u8,

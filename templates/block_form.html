@@ -23,6 +23,7 @@
       <p class="card-description">Solve the cube in as few moves as possible to hash a new block</p>
     </div>
     <div class="card-content">
+      <!-- TODO: send on both name and message change, if both non-empty -->
       <form id="get-scramble-form">
         <div id="formContent">
           <div class="form-group">
@@ -31,6 +32,10 @@
             {% if !parent_is_head %}
             <div class="warning">⚠️ Warning! The parent block is not the head of the longest change. This means that the new block will probably never be part of the active chain. Are you sure you don't want to select the newest block in the active chain instead?</div>
             {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="name" class="form-label">Username</label>
+            <input name="name" class="form-input" required></input>
           </div>
           <div class="form-group">
             <label for="message" class="form-label">Message</label>
@@ -58,6 +63,7 @@
       {% if let Some(scramble) = scramble %}
       <form id="post-solution-form" hx-post="/block" hx-target="#block-form" hx-swap="outerHTML" hx-include="#get-scramble-form">
         <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
+        <input type="hidden" name="name" value="{{ name }}">
         <input type="hidden" name="message" value="{{ message }}">
 
         <div class="form-group">
