@@ -1,25 +1,48 @@
 #!/usr/bin/env bash
 
-if [ ! -d "src" ]; then
-  echo "Error: The 'src/' directory was not found. Ensure you run this script from the root of your Rust project."
+# Directories to search
+dirs=("src" "templates" "static" "migrations")
+
+# Check if at least one target directory exists
+found=false
+for dir in "${dirs[@]}"; do
+  if [ -d "$dir" ]; then
+    found=true
+    break
+  fi
+done
+
+if [ "$found" = false ]; then
+  echo "Error: None of the target directories (src/, templates/, static/, migrations/) were found."
   exit 1
 fi
 
 {
-echo "AI Context for Rust Project"
+echo "AI Context for Project"
 echo "Date: $(date)"
 echo "---"
 echo ""
 
-find src -name "*.rs" | while read -r file; do
-  echo "### File: $file"
-  echo "\`\`\`rust"
-  cat "$file"
-  echo "\`\`\`"
-  echo ""
-  echo "---"
-  echo ""
+for dir in "${dirs[@]}"; do
+  if [ -d "$dir" ]; then
+    find "$dir" -type f \( -name "*.rs" -o -name "*.html" -o -name "*.css" -o -name "*.sql" \) | while read -r file; do
+      echo "### File: $file"
+      ext="${file##*.}"
+      case "$ext" in
+        rs) echo "\`\`\`rust" ;;
+        html) echo "\`\`\`html" ;;
+        css) echo "\`\`\`css" ;;
+        sql) echo "\`\`\`sql" ;;
+        *) echo "\`\`\`text" ;; # fallback
+      esac
+      cat "$file"
+      echo "\`\`\`"
+      echo ""
+      echo "---"
+      echo ""
+    done
+  fi
 done
 } > context.md
 
-echo "Rust project context successfully written to context.md."
+echo "Project context successfully written to context.md."
