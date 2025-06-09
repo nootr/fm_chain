@@ -489,6 +489,13 @@ footer {
   font-size: 0.875rem;
 }
 
+.block-createdat {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  width: 100%;
+  text-align: right;
+}
+
 hr {
   margin-bottom: 1.5rem;
   border: 0.5px solid var(--text-muted);
@@ -524,6 +531,7 @@ hr {
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
   max-width: 100vw;
+  transition: 0.25s ease-in;
 }
 
 .block:hover {

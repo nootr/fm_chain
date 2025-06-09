@@ -2,8 +2,8 @@
 <li
   class="block"
   x-data="{ 'open': false }"
-  @mouseenter="open = true"
-  @mouseleave="open = false"
+  @click="open = !open"
+  @click.outside="open = false"
   >
   <div class="block-header">
     <p class="hash">{{ block.short_hash() }}</p>
@@ -11,7 +11,7 @@
   </div>
   <hr/>
   <div class="block-message"><pre>{{ block.message }}</pre></div>
-  <div x-show="open" x-transition>
+  <div x-show="open">
     <table class="block-details">
       <caption>Block #{{ block.height }} details</caption>
       <tbody>
@@ -37,6 +37,9 @@
       hx-trigger="click[!document.querySelector('.modal')]"
     >Add a new block</button>
   </div>
+  {% if let Some(timestamp) = block.created_at %}
+  <p class="block-createdat">{{ timestamp }}</p>
+  {% endif %}
 </li>
 {% endfor %}
 {% if blocks.len() as u32 == page_size %}
