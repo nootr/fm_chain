@@ -75,6 +75,14 @@
           </a>
         </div>
       </div>
+      <div class="explanation">
+        <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
+        <ol>
+          <li><span class="explanation-step">✍️ Write a message</span> Leave any text you like — your block’s content.</li>
+          <li><span class="explanation-step">🧩 Solve the scramble</span> Each block generates a Rubik’s Cube scramble from its hash. Solve it in the fewest moves.</li>
+          <li><span class="explanation-step">🏆 Compete for the chain</span> The longest chain wins. If tied, the one with the shorter last solution takes the lead.</li>
+        </ol>
+      </div>
     </header>
     <div
       x-data="{ 'show': false }"
@@ -95,7 +103,7 @@
           <ul
             hx-get="/blocks"
             hx-swap="innerHTML"
-            hx-trigger="load, every 10s[document.documentElement.scrollTop === 0 && !document.querySelector('.block-details')]"
+            hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
             >
             <div class="lds-ellipsis">
               <div></div>

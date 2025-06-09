@@ -23,6 +23,14 @@
       <p class="card-description">Solve the cube in as few moves as possible to hash a new block</p>
     </div>
     <div class="card-content">
+      <div class="houserules">
+        <p>This is all just for fun, so:</p>
+        <ul>
+          <li>👪 Please keep your message family-friendly</li>
+          <li>🚫 Please do not cheat by using the scramble as part of the solution</li>
+        </ul>
+        <p>Thank you!</p>
+      </div>
       <form
         id="get-scramble-form"
         x-data="{ 'name': $persist('{{ name }}') }"
@@ -32,7 +40,7 @@
             <label for="parent_hash" class="form-label">Parent block</label>
             <input name="parent_hash" class="display disabled-display" value="{{ parent_hash }}" readonly required></input>
             {% if !parent_is_head %}
-            <div class="warning">⚠️ Warning! The parent block is not the head of the longest change. This means that the new block will probably never be part of the active chain. Are you sure you don't want to select the newest block in the active chain instead?</div>
+            <div class="warning">⚠️ Warning! The parent block is not the head of the longest change. This means that the new block might not become part of the active chain. Are you sure you don't want to select the newest block in the active chain instead?</div>
             {% endif %}
           </div>
           <div class="form-group">
