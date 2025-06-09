@@ -95,7 +95,7 @@
           <ul
             hx-get="/blocks"
             hx-swap="innerHTML"
-            hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
+            hx-trigger="load, every 10s[document.documentElement.scrollTop === 0 && !document.querySelector('.block-details')]"
             >
             <div class="lds-ellipsis">
               <div></div>

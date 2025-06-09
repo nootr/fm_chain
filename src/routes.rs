@@ -135,7 +135,7 @@ async fn post_block(
             &hash,
             &block_info.name,
             &block_info.message,
-            &format_moves(&raw_scramble),
+            &format_moves(&parsed_solution),
             parsed_solution.len() as u8,
             &block_info.solution_description,
         )

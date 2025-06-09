@@ -47,6 +47,40 @@ header {
   padding: 2rem 0;
 }
 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: sans-serif;
+  font-size: 0.95rem;
+  border: 1px solid var(--text-muted);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  color: var(--text-secondary);
+}
+
+caption {
+  font-weight: 200;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--text-muted);
+}
+
+td {
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--bg-card);
+}
+
+td:first-child {
+  color: var(--text-muted);
+  width: 20%;
+  white-space: nowrap;
+}
+
 .header-content {
   display: flex;
   align-items: center;
@@ -246,23 +280,23 @@ input[readonly], .form-textarea[readonly] {
 }
 
 .button {
+  display: block;
+  margin: auto;
   font-size: 0.875rem;
   font-weight: 500;
-  width: 100%;
-  padding: 2px;
-  margin: 1rem auto;
-  border-radius: var(--radius);
+  padding: 0.5rem;
+  border-radius: 1rem;
   cursor: pointer;
   border: none;
+  color: var(--text-primary);
 }
 
 .button-primary {
-  background-color: var(--accent-dark);
-  color: white;
+  background-color: var(--bg-card);
 }
 
 .button-primary:hover {
-  background-color: var(--accent-color);
+  background-color: var(--bg-input);
 }
 
 .button-ghost {
@@ -273,10 +307,6 @@ input[readonly], .form-textarea[readonly] {
 .button-ghost:hover {
   background-color: var(--bg-input);
   color: var(--accent-light);
-}
-
-.button-block {
-  width: 100%;
 }
 
 .button-icon {
@@ -382,10 +412,25 @@ footer {
   color: var(--success-light);
 }
 
+.block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .hash {
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
   color: var(--text-secondary);
+}
+
+.block-name {
+  font-size: 0.875rem;
+}
+
+hr {
+  margin-bottom: 1.5rem;
+  border: 0.5px solid var(--text-muted);
 }
 
 .block-message {
@@ -401,16 +446,31 @@ footer {
 }
 
 .screen {
-  width: 400px;
+  width: 600px;
+  max-width: 100%;
   margin: auto;
+  padding: 1rem;
+}
+
+.screen > * {
+  margin-bottom: 1rem;
 }
 
 .block {
   list-style: none;
   border: 1px solid var(--border-color);
   padding: 1rem;
+  padding-bottom: 0.5rem;
   margin-bottom: 1rem;
   max-width: 100vw;
+}
+
+.block:hover {
+  border: 1px solid var(--accent-light);
+}
+
+.block-message {
+  margin-bottom: 1rem;
 }
 
 .icon {

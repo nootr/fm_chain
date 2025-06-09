@@ -2,6 +2,8 @@ use chrono::NaiveDateTime;
 use sqlx::{FromRow, SqlitePool};
 use std::collections::HashMap;
 
+use crate::utils;
+
 #[derive(Debug, Clone, FromRow)]
 pub struct Block {
     pub hash: String,
@@ -16,6 +18,12 @@ pub struct Block {
 }
 
 impl Block {
+    // Get scramble for this block
+    pub fn scramble(&self) -> String {
+        let scramble = utils::scramble_from_hash(&self.hash);
+        utils::format_moves(&scramble)
+    }
+
     // Fetch all blocks
     pub async fn find_all(
         db: &SqlitePool,
