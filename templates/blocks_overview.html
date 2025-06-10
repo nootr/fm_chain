@@ -5,13 +5,14 @@
   @click="open = !open"
   @click.outside="open = false"
   >
+  <!-- TODO: show if block is in main chain -->
   <div class="block-header">
     <p class="hash">{{ block.short_hash() }}</p>
     <p class="block-name">{{ block.name }}</p>
   </div>
   <hr/>
   <div class="block-message"><pre>{{ block.message }}</pre></div>
-  <div x-show="open">
+  <template x-if="open">
     <table class="block-details">
       <caption>Block #{{ block.height }} details</caption>
       <tbody>
@@ -36,7 +37,7 @@
       hx-target="body"
       hx-trigger="click[!document.querySelector('.modal')]"
     >Add a new block</button>
-  </div>
+  </template>
   {% if let Some(timestamp) = block.created_at %}
   <p class="block-createdat">{{ timestamp }}</p>
   {% endif %}
