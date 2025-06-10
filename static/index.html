@@ -85,25 +85,56 @@
       </div>
     </header>
     <div
-      x-data="{ 'show': false }"
-      x-init="$nextTick(() => { show = true })"
+      x-data="{
+        show: false,
+        showAll: false,
+
+        init() {
+          const params = new URLSearchParams(window.location.search);
+          this.showAll = params.get('all') === 'true';
+          $nextTick(() => { this.show = true });
+        },
+        updateQueryParam() {
+          const url = new URL(window.location);
+          url.searchParams.set('all', this.showAll);
+          window.history.replaceState({}, '', url);
+          document.getElementById('blocks').dispatchEvent(new Event('update'));
+        }
+      }"
       x-show="show"
       x-transition.duration.500ms
       x-cloak
       >
       <main class="container">
         <div class="screen">
-          <button
-            class="button button-ghost"
-            hx-get="/block"
-            hx-swap="beforeend"
-            hx-target="body"
-            hx-trigger="click[!document.querySelector('.modal')]"
-          >Solve a cube to create a new block!</button>
+          <!-- TODO: make good-looking button
+          <div>
+            <button
+              class="button button-ghost"
+              hx-get="/block"
+              hx-swap="beforeend"
+              hx-target="body"
+              hx-trigger="click[!document.querySelector('.modal')]"
+            >Click here to start!</button>
+          </div>
+          -->
+          <input type="hidden" name="all" :value="showAll"/>
+          <div class="checkbox-wrapper">
+            <input class="switch" type="checkbox" id="all" x-model="showAll" @change="updateQueryParam"/>
+            <label for="all">
+              <span class="switch-x-text">Click to show </span>
+              <span class="switch-x-toggletext">
+                <span class="switch-x-unchecked"><span class="switch-x-hiddenlabel">Unchecked: </span>all the blocks</span>
+                <span class="switch-x-checked"><span class="switch-x-hiddenlabel">Checked: </span>the main blockchain</span>
+              </span>
+            </label>
+          </div>
           <ul
+            id="blocks"
             hx-get="/blocks"
             hx-swap="innerHTML"
-            hx-trigger="load, every 10s[document.documentElement.scrollTop === 0]"
+            hx-trigger="load, update, every 10s[document.documentElement.scrollTop === 0]"
+            hx-include="[name='all']"
             >
             <div class="lds-ellipsis">
               <div></div>
