@@ -30,6 +30,7 @@
         </tr>
       </tbody>
     </table>
+    {% if block.can_create_child() %}
     <button
       class="button button-primary"
       hx-get="/block?parent_hash={{ block.hash }}"
@@ -37,6 +38,7 @@
       hx-target="body"
       hx-trigger="click[!document.querySelector('.modal')]"
     >Add a new block</button>
+    {% endif %}
   </div>
   {% if let Some(timestamp) = block.created_at %}
   <p class="block-createdat">{{ timestamp }}</p>

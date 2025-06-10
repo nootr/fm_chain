@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{Datelike, NaiveDateTime, Utc, Weekday};
 use sqlx::{FromRow, SqlitePool};
 use std::collections::HashSet;
 
@@ -22,6 +22,47 @@ impl Block {
     pub fn scramble(&self) -> String {
         let scramble = utils::scramble_from_hash(&self.hash);
         utils::format_moves(&scramble)
+    }
+
+    // Returns true if the user is allowed to create a child block
+    pub fn can_create_child(&self) -> bool {
+        self.is_from_last_week() || self.height == 0
+    }
+
+    // Fetch Block from database using its hash
+    pub async fn from_hash(hash: &str) -> Self {
+        sqlx::query_as::<_, Block>(
+            "SELECT hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
+             FROM blocks
+             WHERE hash = ?",
+        )
+        .bind(hash)
+        .fetch_one(&SqlitePool::connect("your_database_url").await.unwrap())
+        .await
+        .expect("Failed to fetch block by hash")
+    }
+
+    // Returns true if the block is from before Monday this week
+    fn is_from_last_week(&self) -> bool {
+        let created_at = self.created_at.expect("Block should have a creation date");
+        let now = Utc::now().naive_utc();
+        let today = now.date();
+        let days_since_monday = match today.weekday() {
+            Weekday::Mon => 0,
+            Weekday::Tue => 1,
+            Weekday::Wed => 2,
+            Weekday::Thu => 3,
+            Weekday::Fri => 4,
+            Weekday::Sat => 5,
+            Weekday::Sun => 6,
+        };
+
+        let start_of_week_date = today - chrono::Duration::days(days_since_monday);
+        let start_of_week = start_of_week_date
+            .and_hms_opt(0, 0, 0)
+            .expect("Failed to get start of week");
+
+        created_at < start_of_week
     }
 
     // Get a list of hashes of blocks in the main chain

@@ -39,6 +39,17 @@ async fn get_block(
         Some(x) => x.clone(),
         None => main_chain_head_hash.clone(),
     };
+    match Block::find_by_hash(&db, &parent_hash).await {
+        Ok(block) => {
+            if !block.can_create_child() {
+                return HttpResponse::BadRequest()
+                    .body("This block cannot be used as a parent for a new block.");
+            }
+        }
+        Err(_) => {
+            return HttpResponse::NotFound().body("Parent block not found");
+        }
+    };
     let name = block_info.name.clone().unwrap_or_default();
     let message = block_info.message.clone().unwrap_or_default();
     let data = format_data(&parent_hash, &name, &message);
@@ -76,6 +87,17 @@ async fn post_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
+    match Block::find_by_hash(&db, &block_info.parent_hash).await {
+        Ok(block) => {
+            if !block.can_create_child() {
+                return HttpResponse::BadRequest()
+                    .body("This block cannot be used as a parent for a new block.");
+            }
+        }
+        Err(_) => {
+            return HttpResponse::NotFound().body("Parent block not found");
+        }
+    };
     let main_chain_head_hash = Block::find_main_chain_head(&db)
         .await
         .expect("Unable to find head");

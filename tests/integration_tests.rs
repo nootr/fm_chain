@@ -101,7 +101,8 @@ mod integration_tests {
             .expect("Failed to find main chain blocks");
 
         assert_eq!(main_chain_blocks.len(), 4);
-        let main_chain_hashes: HashSet<String> = main_chain_blocks.into_iter().map(|b| b.hash).collect();
+        let main_chain_hashes: HashSet<String> =
+            main_chain_blocks.into_iter().map(|b| b.hash).collect();
         assert!(main_chain_hashes.contains("genesis_block_hash_001"));
         assert!(main_chain_hashes.contains("main_chain_block_002"));
         assert!(main_chain_hashes.contains("main_chain_block_003"));
@@ -116,7 +117,6 @@ mod integration_tests {
         assert_eq!(paginated_blocks_page1.len(), 2);
         assert_eq!(paginated_blocks_page1[0].hash, "main_chain_block_004");
         assert_eq!(paginated_blocks_page1[1].hash, "fork_chain_block_A_002");
-
 
         let paginated_blocks_page2 = Block::find_all(&pool, false, Some(2), Some(2))
             .await
@@ -155,17 +155,9 @@ mod integration_tests {
 
     #[sqlx::test(fixtures("blocks"))]
     async fn test_block_scramble_method(pool: SqlitePool) {
-        let block = Block::create_genesis(
-            &pool,
-            "A0C1E2G3",
-            "test",
-            "message",
-            "U",
-            1,
-            "desc",
-        )
-        .await
-        .unwrap();
+        let block = Block::create_genesis(&pool, "A0C1E2G3", "test", "message", "U", 1, "desc")
+            .await
+            .unwrap();
 
         let expected_scramble_moves = utils::scramble_from_hash("A0C1E2G3");
         let expected_scramble_string = utils::format_moves(&expected_scramble_moves);
@@ -176,17 +168,9 @@ mod integration_tests {
     #[sqlx::test(fixtures("blocks"))]
     async fn test_block_short_hash_method(pool: SqlitePool) {
         let long_hash = "abcdefghijklmnop";
-        let block = Block::create_genesis(
-            &pool,
-            long_hash,
-            "test",
-            "message",
-            "U",
-            1,
-            "desc",
-        )
-        .await
-        .unwrap();
+        let block = Block::create_genesis(&pool, long_hash, "test", "message", "U", 1, "desc")
+            .await
+            .unwrap();
 
         assert_eq!(block.short_hash(), "abcdefgh");
     }
@@ -196,7 +180,11 @@ mod integration_tests {
         let scramble_hash = "0123456789ABCDEF";
         let scramble = utils::scramble_from_hash(scramble_hash);
 
-        let solution_moves = scramble.iter().rev().map(|m| m.inverse()).collect::<Vec<_>>();
+        let solution_moves = scramble
+            .iter()
+            .rev()
+            .map(|m| m.inverse())
+            .collect::<Vec<_>>();
 
         assert!(utils::verify_solution(&scramble, &solution_moves));
     }
