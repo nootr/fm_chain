@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 use sqlx::{FromRow, SqlitePool};
+use std::collections::HashSet;
 
 use crate::utils;
 
@@ -24,7 +25,7 @@ impl Block {
     }
 
     // Get a list of hashes of blocks in the main chain
-    pub async fn get_main_chain_hashes(db: &SqlitePool) -> Result<Vec<String>, sqlx::Error> {
+    pub async fn get_main_chain_hashes(db: &SqlitePool) -> Result<HashSet<String>, sqlx::Error> {
         Ok(sqlx::query_scalar!(
             r#"
             WITH RECURSIVE main_chain AS (

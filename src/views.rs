@@ -1,4 +1,5 @@
 use askama::Template;
+use std::collections::HashSet;
 
 use crate::models::Block;
 
@@ -44,14 +45,22 @@ pub fn get_block(
 #[template(path = "blocks_overview.html")]
 struct BlocksTemplate {
     blocks: Vec<Block>,
+    main_chain_hashes: HashSet<String>,
     next_offset: u32,
     page_size: u32,
     show_all: bool,
 }
 
-pub fn get_blocks(blocks: Vec<Block>, next_offset: u32, page_size: u32, show_all: bool) -> String {
+pub fn get_blocks(
+    blocks: Vec<Block>,
+    main_chain_hashes: HashSet<String>,
+    next_offset: u32,
+    page_size: u32,
+    show_all: bool,
+) -> String {
     BlocksTemplate {
         blocks,
+        main_chain_hashes,
         next_offset,
         page_size,
         show_all,

@@ -1,18 +1,19 @@
 {% for block in blocks %}
 <li
   class="block"
+  :class="{ 'block-closed': !open }"
   x-data="{ 'open': false }"
-  @click="open = !open"
+  @click="open = true"
   @click.outside="open = false"
   >
-  <!-- TODO: show if block is in main chain -->
   <div class="block-header">
-    <p class="hash">{{ block.short_hash() }}</p>
+    <p class="hash">{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main chain){% endif %}</p>
     <p class="block-name">{{ block.name }}</p>
   </div>
   <hr/>
   <div class="block-message"><pre>{{ block.message }}</pre></div>
-  <template x-if="open">
+  <div :data-block-details-open="open"></div>
+  <div x-show="open">
     <table class="block-details">
       <caption>Block #{{ block.height }} details</caption>
       <tbody>
@@ -37,7 +38,7 @@
       hx-target="body"
       hx-trigger="click[!document.querySelector('.modal')]"
     >Add a new block</button>
-  </template>
+  </div>
   {% if let Some(timestamp) = block.created_at %}
   <p class="block-createdat">{{ timestamp }}</p>
   {% endif %}

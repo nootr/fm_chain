@@ -165,9 +165,18 @@ async fn get_blocks(
     let page_offset = query_params.page_offset.unwrap_or(0);
     let next_offset = page_offset + page_size;
 
+    let main_chain_hashes = Block::get_main_chain_hashes(&db)
+        .await
+        .expect("Unable to fetch main chain hashes");
     let blocks = Block::find_all(&db, !show_all, Some(page_size), Some(page_offset))
         .await
         .expect("Unable to fetch all blocks");
 
-    HttpResponse::Ok().body(views::get_blocks(blocks, next_offset, page_size, show_all))
+    HttpResponse::Ok().body(views::get_blocks(
+        blocks,
+        main_chain_hashes,
+        next_offset,
+        page_size,
+        show_all,
+    ))
 }
