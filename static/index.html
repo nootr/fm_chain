@@ -78,9 +78,22 @@
       <div class="explanation">
         <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
         <ol>
-          <li><span class="explanation-step">✍️ Write a message</span> Leave any text you like — your block’s content.</li>
-          <li><span class="explanation-step">🧩 Solve the scramble</span> Each block generates a Rubik’s Cube scramble from its hash. Solve it in the fewest moves.</li>
-          <li><span class="explanation-step">🏆 Compete for the chain</span> The longest chain wins. If tied, the one with the shorter last solution takes the lead.</li>
+          <li>
+            <span class="explanation-step">✍️ Write a message</span>
+            <div class="step-description">Leave any text you like as your block's content. This message becomes part of the permanent blockchain record and contributes to the unique hash that generates your cube scramble.</div>
+          </li>
+          <li>
+            <span class="explanation-step">🧩 Solve the scramble</span>
+            <div class="step-description">Each block generates a unique Rubik's Cube scramble derived from its cryptographic hash. Your challenge is to solve this scramble using the fewest possible moves, demonstrating your puzzle-solving skill.</div>
+          </li>
+          <li>
+            <span class="explanation-step">⛓️ Continue the blockchain</span>
+            <div class="step-description">The longest valid chain takes precedence in the network. When chains are tied in length, the chain with the most efficient last solution (fewest moves) becomes the leading branch.</div>
+          </li>
+          <li>
+            <span class="explanation-step">🏆 Foster forks for fun</span>
+            <div class="step-description">Only blocks from last week can be extended with new blocks. This encourages diverse branching, prevents rapid chain manipulation, and allows fair competition between different messages and solutions.</div>
+          </li>
         </ol>
       </div>
     </header>
@@ -107,17 +120,6 @@
       >
       <main class="container">
         <div class="screen">
-          <!-- TODO: make good-looking button
-          <div>
-            <button
-              class="button button-ghost"
-              hx-get="/block"
-              hx-swap="beforeend"
-              hx-target="body"
-              hx-trigger="click[!document.querySelector('.modal')]"
-            >Click here to start!</button>
-          </div>
-          -->
           <input type="hidden" name="all" :value="showAll"/>
           <div class="checkbox-wrapper">
             <input class="switch" type="checkbox" id="all" x-model="showAll" @change="updateQueryParam"/>

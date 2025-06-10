@@ -7,7 +7,7 @@
   @click.outside="open = false"
   >
   <div class="block-header">
-    <p class="hash">{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main chain){% endif %}</p>
+    <p class="hash">{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main blockchain){% endif %}</p>
     <p class="block-name">{{ block.name }}</p>
   </div>
   <hr/>

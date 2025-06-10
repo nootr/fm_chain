@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
     }
 
     let name = "Nootr";
-    let message = "♥️";
+    let message = "Let the solves begin! ✨";
     let data = utils::format_data("", name, message);
     let hash = utils::calculate_hash(&data);
     let scramble = utils::scramble_from_hash(&hash);
