@@ -501,14 +501,6 @@ hr {
   border: 0.5px solid var(--text-muted);
 }
 
-.block-message {
-  max-width: 20ch;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .fixed-spacing {
   white-space: pre;
 }
