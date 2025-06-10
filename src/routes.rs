@@ -34,8 +34,7 @@ async fn get_block(
 ) -> impl Responder {
     let main_chain_head_hash = Block::find_main_chain_head(&db)
         .await
-        .expect("Unable to find head")
-        .hash;
+        .expect("Unable to find head");
     let parent_hash = match &block_info.parent_hash {
         Some(x) => x.clone(),
         None => main_chain_head_hash.clone(),
@@ -79,8 +78,7 @@ async fn post_block(
 ) -> impl Responder {
     let main_chain_head_hash = Block::find_main_chain_head(&db)
         .await
-        .expect("Unable to find head")
-        .hash;
+        .expect("Unable to find head");
     let data = format_data(
         &block_info.parent_hash,
         &block_info.name,

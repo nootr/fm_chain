@@ -23,6 +23,7 @@ impl Block {
         utils::format_moves(&scramble)
     }
 
+    // Get a list of hashes of blocks in the main chain
     pub async fn get_main_chain_hashes(db: &SqlitePool) -> Result<Vec<String>, sqlx::Error> {
         Ok(sqlx::query_scalar!(
             r#"
@@ -50,7 +51,7 @@ impl Block {
         .fetch_all(db)
         .await?
         .into_iter()
-        .filter_map(|h| h)
+        .flatten()
         .collect())
     }
 
@@ -177,7 +178,14 @@ impl Block {
         self.hash.chars().take(8).collect()
     }
 
-    pub async fn find_main_chain_head(db: &SqlitePool) -> Result<Block, sqlx::Error> {
-        Ok(Self::find_all(db, true, None, None).await?[0].clone())
+    pub async fn find_main_chain_head(db: &SqlitePool) -> Result<String, sqlx::Error> {
+        Ok(sqlx::query_scalar!(
+            "SELECT hash FROM blocks
+                ORDER BY height DESC, solution_moves DESC
+                LIMIT 1"
+        )
+        .fetch_one(db)
+        .await?
+        .expect("First block should always have hash"))
     }
 }
