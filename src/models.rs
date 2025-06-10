@@ -34,7 +34,7 @@ impl Block {
               WHERE (height, solution_moves) = (
                 SELECT height, solution_moves
                 FROM blocks
-                ORDER BY height DESC, solution_moves DESC
+                ORDER BY height DESC, solution_moves ASC
                 LIMIT 1
               )
 
@@ -84,7 +84,7 @@ impl Block {
             query_str.push(')');
         }
 
-        query_str.push_str(" ORDER BY height DESC, solution_moves DESC");
+        query_str.push_str(" ORDER BY height DESC, solution_moves ASC");
 
         // Conditionally add LIMIT and OFFSET clauses
         if page_size.is_some() {
@@ -182,7 +182,7 @@ impl Block {
     pub async fn find_main_chain_head(db: &SqlitePool) -> Result<String, sqlx::Error> {
         Ok(sqlx::query_scalar!(
             "SELECT hash FROM blocks
-                ORDER BY height DESC, solution_moves DESC
+                ORDER BY height DESC, solution_moves ASC
                 LIMIT 1"
         )
         .fetch_one(db)
