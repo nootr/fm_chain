@@ -6,6 +6,7 @@ use sqlx::SqlitePool;
 use fm_chain::cache::MemoryCache;
 use fm_chain::config;
 use fm_chain::routes;
+use fm_chain::setup::run_setup;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -13,6 +14,9 @@ async fn main() -> std::io::Result<()> {
     let db = SqlitePool::connect(&conf.database_url)
         .await
         .expect("DB failed");
+
+    run_setup(&db).await.expect("Failed to setup database");
+
     let cache = MemoryCache::<String, String>::default();
     cache.start_cleanup_task(60);
 

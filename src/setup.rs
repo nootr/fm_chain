@@ -1,20 +1,15 @@
-use env_logger::Env;
 use sqlx::SqlitePool;
 
-use fm_chain::config;
-use fm_chain::models::Block;
-use fm_chain::utils;
+use crate::models::Block;
+use crate::utils;
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let conf = config::Config::from_env();
-    let db = SqlitePool::connect(&conf.database_url)
+pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
+    sqlx::migrate!("./migrations")
+        .run(db)
         .await
-        .expect("DB failed");
+        .expect("Failed to run migrations");
 
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
-
-    let blocks = Block::find_all(&db, false, None, None)
+    let blocks = Block::find_all(db, false, None, None)
         .await
         .expect("Unable to fetch blocks");
 
@@ -41,7 +36,7 @@ async fn main() -> std::io::Result<()> {
     );
 
     let block = Block::create_genesis(
-        &db,
+        db,
         &hash,
         name,
         message,
@@ -51,8 +46,6 @@ async fn main() -> std::io::Result<()> {
     )
     .await
     .expect("Unable to create genesis block");
-
-    db.close().await;
 
     println!("Created genesis block: {:?}", &block);
 

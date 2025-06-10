@@ -6,4 +6,4 @@ if ! command -v watchexec >/dev/null 2>&1; then
     brew install watchexec
 fi
 
-watchexec -r --ignore app.db cargo run --bin fm_chain
+watchexec -r --ignore app.db cargo run

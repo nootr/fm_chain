@@ -4,5 +4,6 @@ pub mod cube;
 pub mod messages;
 pub mod models;
 pub mod routes;
+pub mod setup;
 pub mod utils;
 pub mod views;

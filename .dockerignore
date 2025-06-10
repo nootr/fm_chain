@@ -1,0 +1,10 @@
+*
+
+# Allow list
+!Cargo.toml
+!Cargo.lock
+!.sqlx
+!src/
+!migrations/
+!templates/
+!static/
