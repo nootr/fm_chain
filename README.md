@@ -36,4 +36,7 @@ sqlx migrate add <name>
 
 # Manual commands
 sqlite3 app.db
+
+# Prepare for build
+cargo sqlx prepare
 ```
