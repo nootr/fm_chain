@@ -190,4 +190,24 @@ mod integration_tests {
 
         assert_eq!(block.short_hash(), "abcdefgh");
     }
+
+    #[test]
+    fn test_verify_solution_valid() {
+        let scramble_hash = "0123456789ABCDEF";
+        let scramble = utils::scramble_from_hash(scramble_hash);
+
+        let solution_moves = scramble.iter().rev().map(|m| m.inverse()).collect::<Vec<_>>();
+
+        assert!(utils::verify_solution(&scramble, &solution_moves));
+    }
+
+    #[test]
+    fn test_verify_solution_invalid() {
+        let scramble_hash = "FEDCBA9876543210";
+        let scramble = utils::scramble_from_hash(scramble_hash);
+
+        let invalid_solution_moves = utils::parse_moves("U");
+
+        assert!(!utils::verify_solution(&scramble, &invalid_solution_moves));
+    }
 }
