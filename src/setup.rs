@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let blocks = Block::find_all(&db, None, None)
+    let blocks = Block::find_all(&db, false, None, None)
         .await
         .expect("Unable to fetch blocks");
 

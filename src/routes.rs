@@ -167,15 +167,9 @@ async fn get_blocks(
     let page_offset = query_params.page_offset.unwrap_or(0);
     let next_offset = page_offset + page_size;
 
-    let blocks = if show_all {
-        Block::find_all(&db, Some(page_size), Some(page_offset))
-            .await
-            .expect("Unable to fetch all blocks")
-    } else {
-        Block::find_longest_chain(&db, Some(page_size), Some(page_offset))
-            .await
-            .expect("Unable to fetch longest chain")
-    };
+    let blocks = Block::find_all(&db, !show_all, Some(page_size), Some(page_offset))
+        .await
+        .expect("Unable to fetch all blocks");
 
     HttpResponse::Ok().body(views::get_blocks(blocks, next_offset, page_size, show_all))
 }
