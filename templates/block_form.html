@@ -40,6 +40,7 @@
             <label for="parent_hash" class="form-label">Parent block</label>
             <input name="parent_hash" class="display disabled-display" value="{{ parent_hash }}" readonly required></input>
             {% if !parent_is_head %}
+            <!-- TODO: change warning conditions -->
             <div class="warning">⚠️ Warning! The parent block is not the head of the longest change. This means that the new block might not become part of the active chain. Are you sure you don't want to select the newest block in the active chain instead?</div>
             {% endif %}
           </div>

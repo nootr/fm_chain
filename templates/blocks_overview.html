@@ -1,13 +1,13 @@
 {% for block in blocks %}
 <li
-  class="block"
+  class="block{% if !block.can_create_child() %} block-cannot-create-child{% endif %}"
   :class="{ 'block-closed': !open }"
   x-data="{ 'open': false }"
   @click="open = true"
   @click.outside="open = false"
   >
   <div class="block-header">
-    <p class="hash">{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main blockchain){% endif %}</p>
+    <p class="hash">{% if !block.can_create_child() %}NEW | {% endif %}{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main blockchain){% endif %}</p>
     <p class="block-name">{{ block.name }}</p>
   </div>
   <hr/>
@@ -38,6 +38,8 @@
       hx-target="body"
       hx-trigger="click[!document.querySelector('.modal')]"
     >Add a new block</button>
+    {% else %}
+    <p class="block-too-new-warning">This block is made this week, so you can't continue it with a new block yet. Please select an older block.</p>
     {% endif %}
   </div>
   {% if let Some(timestamp) = block.created_at %}
