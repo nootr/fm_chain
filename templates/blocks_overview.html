@@ -12,8 +12,7 @@
   </div>
   <hr/>
   <div class="block-message"><pre>{{ block.message }}</pre></div>
-  <div :data-block-details-open="open"></div>
-  <div x-show="open">
+  <div x-show="open" :data-block-details-open="open">
     <table class="block-details">
       <caption>Block #{{ block.height }} details</caption>
       <tbody>
