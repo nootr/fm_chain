@@ -45,5 +45,5 @@ cargo sqlx prepare
 ### Deployment
 
 ```bash
-./bin/deploy.sh
+./bin/deploy
 ```
