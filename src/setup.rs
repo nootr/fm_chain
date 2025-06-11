@@ -22,7 +22,8 @@ pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
     let message = "Let the solves begin! ✨";
     let data = utils::format_data("", name, message);
     let hash = utils::calculate_hash(&data);
-    let scramble = utils::scramble_from_hash(&hash);
+    let mut scramble = utils::scramble_from_hash(&hash);
+    utils::cleanup_scramble(&mut scramble);
     let solution = scramble
         .iter()
         .rev()
