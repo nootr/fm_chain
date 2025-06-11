@@ -135,7 +135,7 @@
             id="blocks"
             hx-get="/blocks"
             hx-swap="innerHTML"
-            hx-trigger="load, update, every 10s[(document.documentElement.scrollTop < window.screen.height) && !document.querySelector('[data-block-details-open]')]"
+            hx-trigger="load, update, every 5s[(document.documentElement.scrollTop < window.screen.height) && !document.querySelector('[data-block-details-open]')]"
             hx-include="[name='all']"
             >
             <div class="lds-ellipsis">
