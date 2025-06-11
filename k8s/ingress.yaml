@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "fm-chain-tls-ingress"
+  namespace: "fm-chain"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "fmc.jhx.app"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: "fm-chain-service"
+                port:
+                  number: 8080
+  tls:
+    - secretName: "fm-chain-tls"
+      hosts:
+        - "fmc.jhx.app"

@@ -40,3 +40,10 @@ sqlite3 app.db
 # Prepare for build
 cargo sqlx prepare
 ```
+
+
+### Deployment
+
+```bash
+./bin/deploy.sh
+```

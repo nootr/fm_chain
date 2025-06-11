@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fm-chain-app
+  labels:
+    app: fm-chain
+  namespace: fm-chain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fm-chain
+  template:
+    metadata:
+      labels:
+        app: fm-chain
+    spec:
+      initContainers:
+      - name: init-db-file
+        image: busybox:latest
+        command: ["sh", "-c", "mkdir -p /app/data && touch /app/data/fm_chain.db"]
+        volumeMounts:
+        - name: fm-chain-db-storage
+          mountPath: /app/data
+      containers:
+      - name: fm-chain
+        image: fm-chain:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          value: "sqlite:///app/data/fm_chain.db"
+        volumeMounts:
+        - name: fm-chain-db-storage
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+      volumes:
+      - name: fm-chain-db-storage
+        persistentVolumeClaim:
+          claimName: fm-chain-db-pvc
