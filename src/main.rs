@@ -31,6 +31,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(cache.clone()))
             .service(fs::Files::new(&conf.static_dir, "static"))
             .service(routes::favicon)
+            .service(routes::get_health)
             .service(routes::get_index)
             .service(routes::get_block)
             .service(routes::post_block)

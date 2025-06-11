@@ -20,6 +20,11 @@ async fn get_index() -> impl Responder {
     NamedFile::open_async("static/index.html").await
 }
 
+#[get("/health")]
+async fn get_health() -> impl Responder {
+    HttpResponse::Ok().body("OK")
+}
+
 #[derive(Deserialize)]
 struct InitialBlockInfo {
     parent_hash: Option<String>,
