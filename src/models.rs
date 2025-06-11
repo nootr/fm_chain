@@ -20,7 +20,8 @@ pub struct Block {
 impl Block {
     // Get scramble for this block
     pub fn scramble(&self) -> String {
-        let scramble = utils::scramble_from_hash(&self.hash);
+        let mut scramble = utils::scramble_from_hash(&self.hash);
+        utils::cleanup_scramble(&mut scramble);
         utils::format_moves(&scramble)
     }
 
