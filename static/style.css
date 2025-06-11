@@ -9,7 +9,7 @@
   --text-primary: #f9fafb;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
-  --accent-color: #076941;
+  --accent-color: #10b981;
   --accent-light: #34d399;
   --accent-dark: #059669;
   --accent-bg: rgba(16, 185, 129, 0.2);
@@ -535,13 +535,14 @@ hr {
 }
 
 .block-cannot-create-child {
-  border: 1px solid var(--accent-color);
+  border: 1px solid var(--accent-dark);
 }
 
 .block-too-new-warning {
   font-size: 0.875rem;
   font-weight: 500;
   text-align: center;
+  width: 100%;
   margin: 1rem;
   color: var(--text-secondary);
 }
