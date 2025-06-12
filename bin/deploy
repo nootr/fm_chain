@@ -6,6 +6,8 @@ APP_NAME="fm-chain"
 TMP_FOLDER="$(mktemp -d)"
 FILE_NAME="${APP_NAME}.tar"
 IMAGE_FILE="${TMP_FOLDER}/${FILE_NAME}"
+K8S_CONTEXT="jhx-app"
+K8S_NAMESPACE="${APP_NAME}"
 
 trap 'rm -rf "$TMP_FOLDER"' EXIT
 
@@ -14,5 +16,7 @@ docker save $APP_NAME:latest -o $IMAGE_FILE
 scp $IMAGE_FILE root@jhx.app:~/
 ssh root@jhx.app "sudo k3s ctr -n k8s.io images import ~/${FILE_NAME}"
 
-kubectl --context jhx-app apply -f k8s/namespace.yaml
-kubectl --context jhx-app apply -f k8s/
+kubectl --context ${K8S_CONTEXT} apply -f k8s/namespace.yaml
+kubectl --context ${K8S_CONTEXT} apply -f k8s/
+kubectl --context ${K8S_CONTEXT} -n ${K8S_NAMESPACE} patch deployment ${APP_NAME}-app \
+  -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date -Iseconds)\"}}}}}"
