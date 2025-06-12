@@ -156,6 +156,30 @@ mod tests {
     }
 
     #[test]
+    fn test_verify_solution_valid() {
+        let scramble_hash = "0123456789ABCDEF";
+        let scramble = scramble_from_hash(scramble_hash);
+
+        let solution_moves = scramble
+            .iter()
+            .rev()
+            .map(|m| m.inverse())
+            .collect::<Vec<_>>();
+
+        assert!(verify_solution(&scramble, &solution_moves));
+    }
+
+    #[test]
+    fn test_verify_solution_invalid() {
+        let scramble_hash = "FEDCBA9876543210";
+        let scramble = scramble_from_hash(scramble_hash);
+
+        let invalid_solution_moves = parse_moves("U");
+
+        assert!(!verify_solution(&scramble, &invalid_solution_moves));
+    }
+
+    #[test]
     fn test_verify_solution_ok() {
         // Data source: https://www.fewest-moves.info/archive/468
         let scramble_raw =
