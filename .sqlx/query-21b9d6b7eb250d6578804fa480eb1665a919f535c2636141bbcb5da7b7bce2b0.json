@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            WITH RECURSIVE main_chain AS (\n              SELECT hash, parent_hash, height, solution_moves\n              FROM blocks\n              WHERE hash = (\n                SELECT hash\n                FROM blocks\n                ORDER BY height DESC, solution_moves ASC\n                LIMIT 1\n              )\n\n              UNION ALL\n\n              SELECT b.hash, b.parent_hash, b.height, b.solution_moves\n              FROM blocks b\n              INNER JOIN main_chain mc ON b.hash = mc.parent_hash\n            )\n            SELECT hash FROM main_chain\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "hash",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "21b9d6b7eb250d6578804fa480eb1665a919f535c2636141bbcb5da7b7bce2b0"
+}
