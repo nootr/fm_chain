@@ -10,7 +10,7 @@
     <div class="hash-and-tags">
       <p class="hash">{{ block.short_hash() }}</p>
       {% for tag in block.tags(&blocks, main_chain_hashes) %}
-      <div class="tag tag-{{ tag.value }}" title="{{ tag.label }}">{{ tag.label }}</div>
+      <div class="tag tag-{{ tag.value() }}" title="{{ tag.label() }}">{{ tag.label() }}</div>
       {% endfor %}
     </div>
     <p class="block-name">{{ block.name }}</p>

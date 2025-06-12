@@ -4,6 +4,34 @@ use std::collections::HashSet;
 
 use crate::utils;
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum BlockTag {
+    Genesis,
+    New,
+    Recommended,
+    MainChain,
+}
+
+impl BlockTag {
+    pub fn label(&self) -> &str {
+        match self {
+            BlockTag::Genesis => "Genesis",
+            BlockTag::New => "New",
+            BlockTag::Recommended => "Recommended",
+            BlockTag::MainChain => "Main Chain",
+        }
+    }
+
+    pub fn value(&self) -> &str {
+        match self {
+            BlockTag::Genesis => "genesis",
+            BlockTag::New => "new",
+            BlockTag::Recommended => "recommended",
+            BlockTag::MainChain => "main_chain",
+        }
+    }
+}
+
 #[derive(Debug, Clone, FromRow)]
 pub struct Block {
     pub hash: String,
@@ -15,12 +43,6 @@ pub struct Block {
     pub solution_moves: u8,
     pub solution_description: String,
     pub created_at: Option<NaiveDateTime>,
-}
-
-#[derive(Debug)]
-pub struct BlockTag {
-    pub label: String,
-    pub value: String,
 }
 
 impl Block {
@@ -46,31 +68,19 @@ impl Block {
             .height;
 
         if self.height == 0 {
-            tags.push(BlockTag {
-                label: "Genesis".to_string(),
-                value: "genesis".to_string(),
-            });
+            tags.push(BlockTag::Genesis);
         }
 
         if !self.is_from_last_week() && self.height > 0 {
-            tags.push(BlockTag {
-                label: "New".to_string(),
-                value: "new".to_string(),
-            });
+            tags.push(BlockTag::New);
         }
 
         if (self.height == optimal_height) && self.can_create_child() {
-            tags.push(BlockTag {
-                label: "Recommended".to_string(),
-                value: "recommended".to_string(),
-            });
+            tags.push(BlockTag::Recommended);
         }
 
         if main_chain_hashes.contains(&self.hash) {
-            tags.push(BlockTag {
-                label: "Main Chain".to_string(),
-                value: "main_chain".to_string(),
-            });
+            tags.push(BlockTag::MainChain);
         }
 
         tags
@@ -586,84 +596,47 @@ mod tests {
         main_chain_hashes.insert(block_a.hash.clone());
         main_chain_hashes.insert(block_d.hash.clone());
 
-        let actual_tags_a: HashSet<String> = blocks
+        let actual_tags_a = blocks
             .iter()
             .find(|b| b.hash == block_a.hash)
             .expect("Block A should be present")
-            .tags(&blocks, &main_chain_hashes)
-            .into_iter()
-            .map(|t| t.label)
-            .collect();
-        let expected_tags_a: HashSet<String> = vec!["New", "Main Chain"]
-            .into_iter()
-            .map(String::from)
-            .collect();
-        assert_eq!(
-            actual_tags_a, expected_tags_a,
-            "Tags mismatch for Block A (index 0)"
-        );
+            .tags(&blocks, &main_chain_hashes);
+        let expected_tags_a = vec![BlockTag::New, BlockTag::MainChain];
+        assert_eq!(actual_tags_a, expected_tags_a, "Tags mismatch for Block A");
 
-        let actual_tags_d: HashSet<String> = blocks
+        let actual_tags_d = blocks
             .iter()
             .find(|b| b.hash == block_d.hash)
             .expect("Block D should be present")
-            .tags(&blocks, &main_chain_hashes)
-            .into_iter()
-            .map(|t| t.label)
-            .collect();
-        let expected_tags_d: HashSet<String> = vec!["New", "Main Chain"]
-            .into_iter()
-            .map(String::from)
-            .collect();
-        assert_eq!(
-            actual_tags_d, expected_tags_d,
-            "Tags mismatch for Block D (index 1)"
-        );
+            .tags(&blocks, &main_chain_hashes);
+        let expected_tags_d = vec![BlockTag::New, BlockTag::MainChain];
+        assert_eq!(actual_tags_d, expected_tags_d, "Tags mismatch for Block D");
 
-        let actual_tags_genesis: HashSet<String> = blocks
+        let actual_tags_genesis = blocks
             .iter()
             .find(|b| b.hash == genesis_block.hash)
             .expect("Genesis block should be present")
-            .tags(&blocks, &main_chain_hashes)
-            .into_iter()
-            .map(|t| t.label)
-            .collect();
-        let expected_tags_genesis: HashSet<String> = vec!["Genesis", "Main Chain"]
-            .into_iter()
-            .map(String::from)
-            .collect();
+            .tags(&blocks, &main_chain_hashes);
+        let expected_tags_genesis = vec![BlockTag::Genesis, BlockTag::MainChain];
         assert_eq!(
             actual_tags_genesis, expected_tags_genesis,
-            "Tags mismatch for Genesis Block (index 2)"
+            "Tags mismatch for Genesis Block"
         );
 
-        let actual_tags_b: HashSet<String> = blocks
+        let actual_tags_b = blocks
             .iter()
             .find(|b| b.hash == block_b.hash)
             .expect("Block B should be present")
-            .tags(&blocks, &main_chain_hashes)
-            .into_iter()
-            .map(|t| t.label)
-            .collect();
-        let expected_tags_b: HashSet<String> = vec!["New"].into_iter().map(String::from).collect();
-        assert_eq!(
-            actual_tags_b, expected_tags_b,
-            "Tags mismatch for Block B (index 3)"
-        );
+            .tags(&blocks, &main_chain_hashes);
+        let expected_tags_b = vec![BlockTag::New];
+        assert_eq!(actual_tags_b, expected_tags_b, "Tags mismatch for Block B");
 
-        let actual_tags_c: HashSet<String> = blocks
+        let actual_tags_c = blocks
             .iter()
             .find(|b| b.hash == block_c.hash)
             .expect("Block C should be present")
-            .tags(&blocks, &main_chain_hashes)
-            .into_iter()
-            .map(|t| t.label)
-            .collect();
-        let expected_tags_c: HashSet<String> =
-            vec!["Recommended"].into_iter().map(String::from).collect();
-        assert_eq!(
-            actual_tags_c, expected_tags_c,
-            "Tags mismatch for Block C (index 4)"
-        );
+            .tags(&blocks, &main_chain_hashes);
+        let expected_tags_c = vec![BlockTag::Recommended];
+        assert_eq!(actual_tags_c, expected_tags_c, "Tags mismatch for Block C");
     }
 }
