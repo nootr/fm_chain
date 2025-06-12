@@ -2,6 +2,7 @@ use actix_files::NamedFile;
 use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
 
+use crate::config;
 use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
@@ -16,8 +17,9 @@ async fn favicon() -> impl Responder {
 }
 
 #[get("/")]
-async fn get_index() -> impl Responder {
-    NamedFile::open_async("static/index.html").await
+async fn get_index(conf: web::Data<config::Config>) -> impl Responder {
+    let cloudflare_code = conf.cloudflare_code.clone();
+    HttpResponse::Ok().body(views::get_index(cloudflare_code))
 }
 
 #[get("/health")]

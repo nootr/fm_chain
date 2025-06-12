@@ -24,10 +24,13 @@ async fn main() -> std::io::Result<()> {
 
     println!("Starting server at http://{}:{}/", &conf.host, conf.port);
 
+    let conf_clone = conf.clone();
+
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
             .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(conf_clone.clone()))
             .app_data(web::Data::new(cache.clone()))
             .service(fs::Files::new(&conf.static_dir, "static"))
             .service(routes::favicon)

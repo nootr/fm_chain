@@ -31,6 +31,8 @@ spec:
         env:
         - name: DATABASE_URL
           value: "sqlite:///app/data/fm_chain.db"
+        - name: CLOUDFLARE_CODE
+          value: "50f9d02af889477ea5b5c735a30fbb91"
         volumeMounts:
         - name: fm-chain-db-storage
           mountPath: /app/data

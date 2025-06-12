@@ -160,6 +160,8 @@
         </div>
       </footer>
     </div>
-    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "50f9d02af889477ea5b5c735a30fbb91"}'></script>
+    {% if let Some(token) = cloudflare_code %}
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "{{ token }}"}'></script>
+    {% endif %}
   </body>
 </html>

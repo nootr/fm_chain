@@ -1,11 +1,13 @@
 use dotenv::dotenv;
 use std::env;
 
+#[derive(Debug, Clone)]
 pub struct Config {
     pub host: String,
     pub port: u16,
     pub static_dir: String,
     pub database_url: String,
+    pub cloudflare_code: Option<String>,
 }
 
 impl Config {
@@ -20,6 +22,7 @@ impl Config {
                 .unwrap_or(8080),
             static_dir: env::var("STATIC_DIR").unwrap_or_else(|_| "/static".to_string()),
             database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
+            cloudflare_code: env::var("CLOUDFLARE_CODE").ok(),
         }
     }
 }
