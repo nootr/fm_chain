@@ -274,17 +274,6 @@ impl Block {
     pub fn short_hash(&self) -> String {
         self.hash.chars().take(8).collect()
     }
-
-    pub async fn find_main_chain_head(db: &SqlitePool) -> Result<String, sqlx::Error> {
-        Ok(sqlx::query_scalar!(
-            "SELECT hash FROM blocks
-                ORDER BY height DESC, solution_moves ASC
-                LIMIT 1"
-        )
-        .fetch_one(db)
-        .await?
-        .expect("First block should always have hash"))
-    }
 }
 
 #[cfg(test)]

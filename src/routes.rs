@@ -2,6 +2,7 @@ use actix_files::NamedFile;
 use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
 
+use crate::cache::{Cache, MemoryCache};
 use crate::config;
 use crate::messages::FlashMessage;
 use crate::models::Block;
@@ -17,9 +18,27 @@ async fn favicon() -> impl Responder {
 }
 
 #[get("/")]
-async fn get_index(conf: web::Data<config::Config>) -> impl Responder {
+async fn get_index(
+    conf: web::Data<config::Config>,
+    cache: web::Data<MemoryCache<String, String>>,
+) -> impl Responder {
+    let cache_key = "index_page".to_string();
+
+    if let Some(cached_page) = cache
+        .get(&cache_key)
+        .expect("Failed to get index from cache")
+    {
+        return HttpResponse::Ok().body(cached_page);
+    }
+
     let cloudflare_code = conf.cloudflare_code.clone();
-    HttpResponse::Ok().body(views::get_index(cloudflare_code))
+    let response = views::get_index(cloudflare_code);
+
+    cache
+        .set(&cache_key, response.clone(), None)
+        .expect("Failed to cache index page");
+
+    HttpResponse::Ok().body(response)
 }
 
 #[get("/health")]
@@ -29,7 +48,7 @@ async fn get_health() -> impl Responder {
 
 #[derive(Deserialize)]
 struct InitialBlockInfo {
-    parent_hash: Option<String>,
+    parent_hash: String,
     name: Option<String>,
     message: Option<String>,
 }
@@ -39,14 +58,7 @@ async fn get_block(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
-    let main_chain_head_hash = Block::find_main_chain_head(&db)
-        .await
-        .expect("Unable to find head");
-    let parent_hash = match &block_info.parent_hash {
-        Some(x) => x.clone(),
-        None => main_chain_head_hash.clone(),
-    };
-    match Block::find_by_hash(&db, &parent_hash).await {
+    match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
             if !block.can_create_child() {
                 return HttpResponse::BadRequest()
@@ -59,7 +71,7 @@ async fn get_block(
     };
     let name = block_info.name.clone().unwrap_or_default();
     let message = block_info.message.clone().unwrap_or_default();
-    let data = format_data(&parent_hash, &name, &message);
+    let data = format_data(&block_info.parent_hash, &name, &message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
@@ -69,7 +81,7 @@ async fn get_block(
     };
 
     HttpResponse::Ok().body(views::get_block(
-        &parent_hash,
+        &block_info.parent_hash,
         &name,
         &message,
         scramble.as_deref(),
