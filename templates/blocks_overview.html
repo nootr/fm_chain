@@ -7,7 +7,12 @@
   @click.outside="open = false"
   >
   <div class="block-header">
-    <p class="hash">{% if !block.can_create_child() %}NEW | {% endif %}{{ block.short_hash() }}{% if show_all && main_chain_hashes.contains(block.hash) %} (in main blockchain){% endif %}</p>
+    <div class="hash-and-tags">
+      <p class="hash">{{ block.short_hash() }}</p>
+      {% for tag in block.tags(&blocks, main_chain_hashes) %}
+      <div class="tag tag-{{ tag.value }}" title="{{ tag.label }}">{{ tag.label }}</div>
+      {% endfor %}
+    </div>
     <p class="block-name">{{ block.name }}</p>
   </div>
   <hr/>

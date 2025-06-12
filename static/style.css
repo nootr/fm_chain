@@ -20,6 +20,14 @@
   --success-light: #34d399;
   --success-bg: rgba(16, 185, 129, 0.8);
   --radius: 0.5rem;
+  --tag-bg-new: rgba(16, 185, 129, 0.1);
+  --tag-text-new: #10b981;
+  --tag-bg-genesis: rgba(239, 68, 68, 0.1);
+  --tag-text-genesis: #ef4444;
+  --tag-bg-main-chain: rgba(59, 130, 246, 0.1);
+  --tag-text-main-chain: #3b82f6;
+  --tag-bg-recommended: rgba(249, 115, 22, 0.15);
+  --tag-text-recommended: #f97316;
 }
 
 * {
@@ -474,16 +482,61 @@ footer {
   color: var(--success-light);
 }
 
+.recommended-tip {
+  text-align: center;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
 .block-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.hash-and-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .hash {
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
   color: var(--text-secondary);
+  margin-right: 1rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+}
+
+.tag-new {
+  background-color: var(--tag-bg-new);
+  color: var(--tag-text-new);
+}
+
+.tag-genesis {
+  background-color: var(--tag-bg-genesis);
+  color: var(--tag-text-genesis);
+}
+
+.tag-recommended {
+  background-color: var(--tag-bg-recommended);
+  color: var(--tag-text-recommended);
+}
+
+.tag-main_chain {
+  background-color: var(--tag-bg-main-chain);
+  color: var(--tag-text-main-chain);
 }
 
 .block-name {

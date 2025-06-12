@@ -68,7 +68,6 @@ async fn get_block(
 
     HttpResponse::Ok().body(views::get_block(
         &parent_hash,
-        parent_hash == main_chain_head_hash,
         &name,
         &message,
         scramble.as_deref(),
@@ -103,9 +102,6 @@ async fn post_block(
             return HttpResponse::NotFound().body("Parent block not found");
         }
     };
-    let main_chain_head_hash = Block::find_main_chain_head(&db)
-        .await
-        .expect("Unable to find head");
     let data = format_data(
         &block_info.parent_hash,
         &block_info.name,
@@ -120,7 +116,6 @@ async fn post_block(
         Err(_) => {
             let resp = HttpResponse::Ok().body(views::get_block(
                 &block_info.parent_hash,
-                block_info.parent_hash == main_chain_head_hash,
                 &block_info.name,
                 &block_info.message,
                 Some(&scramble),
@@ -140,7 +135,6 @@ async fn post_block(
     if !verify_solution(&raw_scramble, &parsed_solution) {
         let resp = HttpResponse::Ok().body(views::get_block(
             &block_info.parent_hash,
-            block_info.parent_hash == main_chain_head_hash,
             &block_info.name,
             &block_info.message,
             Some(&scramble),

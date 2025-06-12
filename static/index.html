@@ -121,6 +121,9 @@
       <main class="container">
         <div class="screen">
           <input type="hidden" name="all" :value="showAll"/>
+          <div class="recommended-tip">
+            <p>Tip: look for the <span class="tag tag-recommended">Recommended</span> blocks to find the longest chains to continue.</p>
+          </div>
           <div class="checkbox-wrapper">
             <input class="switch" type="checkbox" id="all" x-model="showAll" @change="updateQueryParam"/>
             <label for="all">

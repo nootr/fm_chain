@@ -17,6 +17,12 @@ pub struct Block {
     pub created_at: Option<NaiveDateTime>,
 }
 
+#[derive(Debug)]
+pub struct BlockTag {
+    pub label: String,
+    pub value: String,
+}
+
 impl Block {
     // Get scramble for this block
     pub fn scramble(&self) -> String {
@@ -28,6 +34,46 @@ impl Block {
     // Returns true if the user is allowed to create a child block
     pub fn can_create_child(&self) -> bool {
         self.is_from_last_week() || self.height == 0
+    }
+
+    // Returns a list of tags for this block
+    pub fn tags(&self, blocks: &[Block], main_chain_hashes: &HashSet<String>) -> Vec<BlockTag> {
+        let mut tags = vec![];
+        let optimal_height: i64 = blocks
+            .iter()
+            .find(|b| b.can_create_child())
+            .expect("There should be at least one block that can create a child")
+            .height;
+
+        if self.height == 0 {
+            tags.push(BlockTag {
+                label: "Genesis".to_string(),
+                value: "genesis".to_string(),
+            });
+        }
+
+        if !self.is_from_last_week() && self.height > 0 {
+            tags.push(BlockTag {
+                label: "New".to_string(),
+                value: "new".to_string(),
+            });
+        }
+
+        if (self.height == optimal_height) && self.can_create_child() {
+            tags.push(BlockTag {
+                label: "Recommended".to_string(),
+                value: "recommended".to_string(),
+            });
+        }
+
+        if main_chain_hashes.contains(&self.hash) {
+            tags.push(BlockTag {
+                label: "Main Chain".to_string(),
+                value: "main_chain".to_string(),
+            });
+        }
+
+        tags
     }
 
     // Fetch Block from database using its hash
@@ -234,7 +280,9 @@ impl Block {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::{Duration, NaiveDateTime};
     use sqlx::SqlitePool;
+    use std::collections::HashSet;
 
     #[sqlx::test(fixtures("../fixtures/blocks.sql"))]
     async fn test_create_and_find_genesis_block(pool: SqlitePool) {
@@ -449,5 +497,173 @@ mod tests {
 
         assert!(main_chain_hashes.contains(&root.hash));
         assert_eq!(main_chain_hashes.len(), 2);
+    }
+
+    #[test]
+    fn test_tags_static() {
+        let current_test_time =
+            NaiveDateTime::parse_from_str("2025-06-12 04:55:48", "%Y-%m-%d %H:%M:%S").unwrap();
+
+        let genesis_block = Block {
+            hash: "genesis_hash".to_string(),
+            parent_hash: None,
+            height: 0,
+            name: "Genesis Block".to_string(),
+            message: "Initial block".to_string(),
+            solution: "".to_string(),
+            solution_moves: 0,
+            solution_description: "".to_string(),
+            created_at: Some(current_test_time),
+        };
+
+        let block_a = Block {
+            hash: "block_a_hash".to_string(),
+            parent_hash: Some("genesis_hash".to_string()),
+            height: 1,
+            name: "Block A".to_string(),
+            message: "Child of Genesis".to_string(),
+            solution: "A".to_string(),
+            solution_moves: 5,
+            solution_description: "Solution A".to_string(),
+            created_at: Some(current_test_time - Duration::hours(1)),
+        };
+
+        let block_b = Block {
+            hash: "block_b_hash".to_string(),
+            parent_hash: Some("genesis_hash".to_string()),
+            height: 1,
+            name: "Block B".to_string(),
+            message: "Another Child of Genesis".to_string(),
+            solution: "B".to_string(),
+            solution_moves: 8,
+            solution_description: "Solution B".to_string(),
+            created_at: Some(current_test_time - Duration::hours(2)),
+        };
+
+        let block_c = Block {
+            hash: "block_c_hash".to_string(),
+            parent_hash: Some("genesis_hash".to_string()),
+            height: 1,
+            name: "Block C".to_string(),
+            message: "Old Child of Genesis".to_string(),
+            solution: "C".to_string(),
+            solution_moves: 5,
+            solution_description: "Solution C".to_string(),
+            created_at: Some(current_test_time - Duration::weeks(2)),
+        };
+
+        let block_d = Block {
+            hash: "block_d_hash".to_string(),
+            parent_hash: Some("block_a_hash".to_string()),
+            height: 2,
+            name: "Block D".to_string(),
+            message: "Child of Block A".to_string(),
+            solution: "D".to_string(),
+            solution_moves: 3,
+            solution_description: "Solution D".to_string(),
+            created_at: Some(current_test_time - Duration::minutes(30)),
+        };
+
+        let mut blocks = vec![
+            block_a.clone(),
+            block_d.clone(),
+            genesis_block.clone(),
+            block_b.clone(),
+            block_c.clone(),
+        ];
+
+        // Sort by height DESC and then by solution_moves ASC
+        blocks.sort_by(|a, b| {
+            if a.height == b.height {
+                a.solution_moves.cmp(&b.solution_moves)
+            } else {
+                b.height.cmp(&a.height)
+            }
+        });
+
+        let mut main_chain_hashes = HashSet::new();
+        main_chain_hashes.insert(genesis_block.hash.clone());
+        main_chain_hashes.insert(block_a.hash.clone());
+        main_chain_hashes.insert(block_d.hash.clone());
+
+        let actual_tags_a: HashSet<String> = blocks
+            .iter()
+            .find(|b| b.hash == block_a.hash)
+            .expect("Block A should be present")
+            .tags(&blocks, &main_chain_hashes)
+            .into_iter()
+            .map(|t| t.label)
+            .collect();
+        let expected_tags_a: HashSet<String> = vec!["New", "Main Chain"]
+            .into_iter()
+            .map(String::from)
+            .collect();
+        assert_eq!(
+            actual_tags_a, expected_tags_a,
+            "Tags mismatch for Block A (index 0)"
+        );
+
+        let actual_tags_d: HashSet<String> = blocks
+            .iter()
+            .find(|b| b.hash == block_d.hash)
+            .expect("Block D should be present")
+            .tags(&blocks, &main_chain_hashes)
+            .into_iter()
+            .map(|t| t.label)
+            .collect();
+        let expected_tags_d: HashSet<String> = vec!["New", "Main Chain"]
+            .into_iter()
+            .map(String::from)
+            .collect();
+        assert_eq!(
+            actual_tags_d, expected_tags_d,
+            "Tags mismatch for Block D (index 1)"
+        );
+
+        let actual_tags_genesis: HashSet<String> = blocks
+            .iter()
+            .find(|b| b.hash == genesis_block.hash)
+            .expect("Genesis block should be present")
+            .tags(&blocks, &main_chain_hashes)
+            .into_iter()
+            .map(|t| t.label)
+            .collect();
+        let expected_tags_genesis: HashSet<String> = vec!["Genesis", "Main Chain"]
+            .into_iter()
+            .map(String::from)
+            .collect();
+        assert_eq!(
+            actual_tags_genesis, expected_tags_genesis,
+            "Tags mismatch for Genesis Block (index 2)"
+        );
+
+        let actual_tags_b: HashSet<String> = blocks
+            .iter()
+            .find(|b| b.hash == block_b.hash)
+            .expect("Block B should be present")
+            .tags(&blocks, &main_chain_hashes)
+            .into_iter()
+            .map(|t| t.label)
+            .collect();
+        let expected_tags_b: HashSet<String> = vec!["New"].into_iter().map(String::from).collect();
+        assert_eq!(
+            actual_tags_b, expected_tags_b,
+            "Tags mismatch for Block B (index 3)"
+        );
+
+        let actual_tags_c: HashSet<String> = blocks
+            .iter()
+            .find(|b| b.hash == block_c.hash)
+            .expect("Block C should be present")
+            .tags(&blocks, &main_chain_hashes)
+            .into_iter()
+            .map(|t| t.label)
+            .collect();
+        let expected_tags_c: HashSet<String> =
+            vec!["Recommended"].into_iter().map(String::from).collect();
+        assert_eq!(
+            actual_tags_c, expected_tags_c,
+            "Tags mismatch for Block C (index 4)"
+        );
     }
 }
