@@ -615,6 +615,11 @@ hr {
   vertical-align: middle;
 }
 
+.logo:hover .icon-twist {
+  transform: rotate(90deg);
+  transition: transform 0.3s ease;
+}
+
 @keyframes fill {
     0% {
         width: 0;
