@@ -37,9 +37,7 @@
       init() {
         this.updateMessage();
         htmx.on('htmx:afterRequest', (event) => {
-          if (event.detail.xhr.status === 200) {
-            this.updateMessage();
-          }
+          this.updateMessage();
         });
       },
 
@@ -80,7 +78,7 @@
         </div>
       </div>
     </header>
-    <div class="explanation">
+    <div x-data="{ open: $persist(false) }" class="explanation">
       <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
       <ol>
         <li>
@@ -96,7 +94,7 @@
           <div class="step-description">The longest valid chain takes precedence in the blockchain. When forks are tied in length, the chain with the most efficient last solution (fewest moves) becomes the leading branch.</div>
         </li>
         <li>
-          <span class="explanation-step">🏆 Forks for Fun</span>
+          <span class="explanation-step">🏆 Fork for Fun</span>
           <div class="step-description">Only blocks from last week can be extended with new blocks. This encourages diverse branching, prevents rapid chain manipulation, and allows fair competition between different messages and solutions.</div>
         </li>
       </ol>

@@ -1,0 +1,28 @@
+<form id="solution-form" x-data="{ solution: '' }" hx-post="/solution" hx-target="#block-form-modal" hx-swap="outerHTML">
+  <input type="hidden" name="parent_hash" value="{{ parent_hash }}">
+  <input type="hidden" name="name" value="{{ name }}">
+  <input type="hidden" name="message" value="{{ message }}">
+
+  <div class="form-group">
+    <label class="form-label">Scramble</label>
+    <div class="display scramble-display">{{ scramble }}</div>
+    <p class="help-text">This scramble is created from the hash of the block: {{ hash }}.</p>
+  </div>
+
+  <div class="form-group">
+    <label for="solution" class="form-label">Your Solution</label>
+    <input x-model="solution" name="solution" class="form-input" placeholder="Enter your solution using standard notation (e.g., R U R' U')" @keyup="lockData = solution.length > 0" required></input>
+    <p class="help-text">Use standard notation: R, L, U, D, F, B, R', L', etc.</p>
+  </div>
+  <div class="form-group">
+    <label for="solution_description" class="form-label">Solution Description</label>
+    <textarea name="solution_description" class="form-textarea" placeholder="Describe how you found your solution" required></textarea>
+  </div>
+  <button type="submit" class="button button-primary">
+    <svg class="icon button-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m22 2-7 20-4-9-9-4Z"/>
+      <path d="M22 2 11 13"/>
+    </svg>
+    Submit Solution
+  </button>
+</form>

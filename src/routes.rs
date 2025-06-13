@@ -69,25 +69,39 @@ async fn get_block(
             return HttpResponse::NotFound().body("Parent block not found");
         }
     };
+    HttpResponse::Ok().body(views::get_block(&block_info.parent_hash))
+}
+
+#[get("/solution")]
+async fn get_solution(
+    db: web::Data<sqlx::SqlitePool>,
+    block_info: web::Query<InitialBlockInfo>,
+) -> impl Responder {
+    match Block::find_by_hash(&db, &block_info.parent_hash).await {
+        Ok(block) => {
+            if !block.can_create_child() {
+                return HttpResponse::BadRequest()
+                    .body("This block cannot be used as a parent for a new block.");
+            }
+        }
+        Err(_) => {
+            return HttpResponse::NotFound().body("Parent block not found");
+        }
+    };
     let name = block_info.name.clone().unwrap_or_default();
     let message = block_info.message.clone().unwrap_or_default();
     let data = format_data(&block_info.parent_hash, &name, &message);
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = match message.is_empty() || name.is_empty() {
-        true => None,
-        false => Some(format_moves(&raw_scramble)),
-    };
+    let scramble = format_moves(&raw_scramble);
 
-    HttpResponse::Ok().body(views::get_block(
+    HttpResponse::Ok().body(views::get_solution(
         &block_info.parent_hash,
         &name,
         &message,
-        scramble.as_deref(),
+        &scramble,
         &hash,
-        "",
-        "",
     ))
 }
 
@@ -100,8 +114,8 @@ struct CompleteBlockInfo {
     solution_description: String,
 }
 
-#[post("/block")]
-async fn post_block(
+#[post("/solution")]
+async fn post_solution(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
@@ -124,19 +138,10 @@ async fn post_block(
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let scramble = format_moves(&raw_scramble);
     let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => block,
         Err(_) => {
-            let resp = HttpResponse::Ok().body(views::get_block(
-                &block_info.parent_hash,
-                &block_info.name,
-                &block_info.message,
-                Some(&scramble),
-                &hash,
-                &block_info.solution,
-                &block_info.solution_description,
-            ));
+            let resp = HttpResponse::BadRequest().body("Parent block not found");
             return FlashMessage::error("Parent block not found").set(resp);
         }
     };
@@ -147,15 +152,7 @@ async fn post_block(
     let parsed_solution = parse_moves(&block_info.solution);
 
     if !verify_solution(&raw_scramble, &parsed_solution) {
-        let resp = HttpResponse::Ok().body(views::get_block(
-            &block_info.parent_hash,
-            &block_info.name,
-            &block_info.message,
-            Some(&scramble),
-            &hash,
-            &block_info.solution,
-            &block_info.solution_description,
-        ));
+        let resp = HttpResponse::BadRequest().body("Incorrect solution");
         return FlashMessage::error(
             "I'm sorry, but your solution doesn't seem to be correct. Please double-check it!",
         )

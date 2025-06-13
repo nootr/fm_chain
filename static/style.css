@@ -75,7 +75,7 @@ ol, ul {
 
 .explanation ol {
   padding: 0;
-  margin: 0;
+  margin-bottom: 1rem;
   display: block;
 }
 
@@ -354,7 +354,7 @@ input[readonly], .form-textarea[readonly] {
   margin: auto;
   font-size: 0.875rem;
   font-weight: 500;
-  padding: 0.5rem;
+  padding: 0.7rem;
   border-radius: 1rem;
   cursor: pointer;
   border: none;

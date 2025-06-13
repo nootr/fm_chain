@@ -19,32 +19,38 @@ pub fn get_index(cloudflare_code: Option<String>) -> String {
 #[template(path = "block_form.html")]
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
+}
+
+pub fn get_block(parent_hash: &str) -> String {
+    BlockFormTemplate { parent_hash }
+        .render()
+        .expect("Failed to render template")
+}
+
+#[derive(Template)]
+#[template(path = "solution_form.html")]
+struct SolutionFormTemplate<'a> {
+    parent_hash: &'a str,
     name: &'a str,
     message: &'a str,
-    scramble: Option<&'a str>,
+    scramble: &'a str,
     hash: &'a str,
-    solution: &'a str,
-    solution_description: &'a str,
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn get_block(
+pub fn get_solution(
     parent_hash: &str,
     name: &str,
     message: &str,
-    scramble: Option<&str>,
+    scramble: &str,
     hash: &str,
-    solution: &str,
-    solution_description: &str,
 ) -> String {
-    BlockFormTemplate {
+    SolutionFormTemplate {
         parent_hash,
         name,
         message,
         scramble,
         hash,
-        solution,
-        solution_description,
     }
     .render()
     .expect("Failed to render template")
