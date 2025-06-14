@@ -16,6 +16,7 @@
   x-show="show"
   x-transition:leave.duration.800ms
   @click.away="ask() ? hide() : null"
+  hx-on::before-swap="document.getElementById('blocks').dispatchEvent(new Event('update'))"
   >
   <div class="card">
     <div class="card-header">
