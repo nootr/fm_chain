@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT EXISTS(\n                SELECT 1 FROM blocks\n                WHERE hash = ? AND solution = ?\n            )",
+  "describe": {
+    "columns": [
+      {
+        "name": "EXISTS(\n                SELECT 1 FROM blocks\n                WHERE hash = ? AND solution = ?\n            )",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "be21068e8b5b39dc9b0e9e1db3631c40fdf39025087dcb0c8ce0ef5727fc5b9f"
+}
