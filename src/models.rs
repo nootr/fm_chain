@@ -86,6 +86,26 @@ impl Block {
         tags
     }
 
+    // Return true if the solution moves for a given hash already exists
+    pub async fn hash_and_solution_exists(
+        db: &SqlitePool,
+        hash: &str,
+        solution: &str,
+    ) -> Result<bool, sqlx::Error> {
+        let exists: Option<i32> = sqlx::query_scalar!(
+            "SELECT EXISTS(
+                SELECT 1 FROM blocks
+                WHERE hash = ? AND solution = ?
+            )",
+            hash,
+            solution
+        )
+        .fetch_one(db)
+        .await?;
+
+        Ok(matches!(exists, Some(1)))
+    }
+
     // Fetch Block from database using its hash
     pub async fn from_hash(hash: &str) -> Self {
         sqlx::query_as::<_, Block>(
@@ -627,5 +647,38 @@ mod tests {
             .tags(&blocks, &main_chain_hashes);
         let expected_tags_c = vec![BlockTag::Recommended];
         assert_eq!(actual_tags_c, expected_tags_c, "Tags mismatch for Block C");
+    }
+
+    #[sqlx::test]
+    async fn test_duplicate_solutions(pool: SqlitePool) {
+        let hash = "duplicate_solution_hash";
+        let solution = "U D L R F B";
+
+        let exists = Block::hash_and_solution_exists(&pool, &hash, &solution)
+            .await
+            .expect("Failed to check if hash and solution exist");
+
+        assert!(
+            !exists,
+            "Expected the block's hash and solution not to exist"
+        );
+
+        let _ = Block::create_genesis(
+            &pool,
+            hash,
+            "test_user",
+            "Test message",
+            solution,
+            6,
+            "Test description",
+        )
+        .await
+        .expect("Failed to create genesis block for duplicate solution test");
+
+        let exists = Block::hash_and_solution_exists(&pool, &hash, &solution)
+            .await
+            .expect("Failed to check if hash and solution exist");
+
+        assert!(exists, "Expected the block's hash and solution to exist");
     }
 }

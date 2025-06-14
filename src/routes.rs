@@ -180,6 +180,14 @@ async fn post_solution(
         .set(resp);
     }
 
+    if Block::hash_and_solution_exists(&db, &hash, &format_moves(&parsed_solution))
+        .await
+        .expect("Failed to check for existing block")
+    {
+        let resp = HttpResponse::BadRequest().body("This solution already exists");
+        return FlashMessage::error("This solution already exists").set(resp);
+    }
+
     if parent_block
         .create_child(
             &db,
