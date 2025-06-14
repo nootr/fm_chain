@@ -12,7 +12,7 @@
   <div class="form-group">
     <label for="solution" class="form-label">Your Solution</label>
     <input x-model="solution" name="solution" class="form-input" placeholder="Enter your solution using standard notation (e.g., R U R' U')" @keyup="lockData = solution.length > 0" required></input>
-    <p class="help-text">Use standard notation: R, L, U, D, F, B, R', L', etc.</p>
+    <p class="help-text">⚠️ No wide moves (e.g. Rw) or rotations (e.g. x'), only standard moves (e.g. R U R' U').</p>
   </div>
   <div class="form-group">
     <label for="solution_description" class="form-label">Solution Description</label>
