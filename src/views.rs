@@ -7,24 +7,51 @@ use crate::models::Block;
 #[template(path = "index.html")]
 struct IndexTemplate {
     cloudflare_code: Option<String>,
+    modal: Option<String>,
 }
 
 pub fn get_index(cloudflare_code: Option<String>) -> String {
-    IndexTemplate { cloudflare_code }
-        .render()
-        .expect("Failed to render template")
+    IndexTemplate {
+        cloudflare_code,
+        modal: None,
+    }
+    .render()
+    .expect("Failed to render template")
 }
 
 #[derive(Template)]
 #[template(path = "block_form.html")]
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
+    message: Option<String>,
+    solution_html: Option<String>,
 }
 
 pub fn get_partial_block(parent_hash: &str) -> String {
-    BlockFormTemplate { parent_hash }
-        .render()
-        .expect("Failed to render template")
+    BlockFormTemplate {
+        parent_hash,
+        message: None,
+        solution_html: None,
+    }
+    .render()
+    .expect("Failed to render template")
+}
+
+pub fn get_block(cloudflare_code: Option<String>, parent_hash: &str) -> String {
+    let modal = BlockFormTemplate {
+        parent_hash,
+        message: None,
+        solution_html: None,
+    }
+    .render()
+    .expect("Failed to render template");
+
+    IndexTemplate {
+        cloudflare_code,
+        modal: Some(modal),
+    }
+    .render()
+    .expect("Failed to render template")
 }
 
 #[derive(Template)]
@@ -51,6 +78,41 @@ pub fn get_partial_solution(
         message,
         scramble,
         hash,
+    }
+    .render()
+    .expect("Failed to render template")
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn get_solution(
+    cloudflare_code: Option<String>,
+    parent_hash: &str,
+    name: &str,
+    message: &str,
+    scramble: &str,
+    hash: &str,
+) -> String {
+    let solution_partial = SolutionFormTemplate {
+        parent_hash,
+        name,
+        message,
+        scramble,
+        hash,
+    }
+    .render()
+    .expect("Failed to render template");
+
+    let modal = BlockFormTemplate {
+        parent_hash,
+        message: Some(message.to_string()),
+        solution_html: Some(solution_partial),
+    }
+    .render()
+    .expect("Failed to render template");
+
+    IndexTemplate {
+        cloudflare_code,
+        modal: Some(modal),
     }
     .render()
     .expect("Failed to render template")

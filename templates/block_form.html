@@ -11,6 +11,16 @@
     hide() {
       this.show = false;
       setTimeout(() => $el.remove(), 800);
+
+      const url = new URL(window.location);
+      url.pathname = '/';
+      let all = url.searchParams.get('all');
+      if (!!all) {
+        url.search = `?all=${all}`;
+      } else {
+        url.search = '';
+      }
+      window.history.replaceState({}, '', url);
     }
   }"
   x-show="show"
@@ -54,6 +64,7 @@
               hx-target="#solution-form"
               hx-swap="outerHTML"
               hx-include="#get-scramble-form"
+              hx-push-url="true"
               required
               />
           </div>
@@ -70,13 +81,18 @@
               hx-target="#solution-form"
               hx-swap="outerHTML"
               hx-include="#get-scramble-form"
+              hx-push-url="true"
               required
-            ></textarea>
+              >{% if let Some(msg) = message %}{{ msg }}{% endif %}</textarea>
             <p class="help-text">Write a message to generate a scramble. Change it to get a new one.</p>
           </div>
         </div>
       </form>
+      {% if let Some(html) = solution_html %}
+      {{ html | safe }}
+      {% else %}
       <div id="solution-form" hidden></div>
+      {% endif %}
     </div>
   </div>
 </div>

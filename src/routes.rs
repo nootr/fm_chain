@@ -56,6 +56,7 @@ struct InitialBlockInfo {
 #[get("/block")]
 async fn get_block(
     request: actix_web::HttpRequest,
+    conf: web::Data<config::Config>,
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
@@ -73,11 +74,14 @@ async fn get_block(
     if is_htmx_request(&request) {
         return HttpResponse::Ok().body(views::get_partial_block(&block_info.parent_hash));
     }
-    todo!()
+
+    let cloudflare_code = conf.cloudflare_code.clone();
+    HttpResponse::Ok().body(views::get_block(cloudflare_code, &block_info.parent_hash))
 }
 
 #[get("/solution")]
 async fn get_solution(
+    conf: web::Data<config::Config>,
     request: actix_web::HttpRequest,
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
@@ -110,7 +114,16 @@ async fn get_solution(
             &hash,
         ));
     }
-    todo!()
+
+    let cloudflare_code = conf.cloudflare_code.clone();
+    HttpResponse::Ok().body(views::get_solution(
+        cloudflare_code,
+        &block_info.parent_hash,
+        &name,
+        &message,
+        &scramble,
+        &hash,
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -201,6 +214,10 @@ async fn get_blocks(
     db: web::Data<sqlx::SqlitePool>,
     query_params: web::Query<BlockQueryParams>,
 ) -> impl Responder {
+    if !is_htmx_request(&request) {
+        return HttpResponse::NotFound().body("This endpoint is only available for HTMX requests.");
+    }
+
     let show_all = query_params.all.unwrap_or(false);
     let page_size = query_params.page_size.unwrap_or(10);
     let page_offset = query_params.page_offset.unwrap_or(0);
@@ -213,14 +230,11 @@ async fn get_blocks(
         .await
         .expect("Unable to fetch all blocks");
 
-    if is_htmx_request(&request) {
-        return HttpResponse::Ok().body(views::get_partial_blocks(
-            blocks,
-            main_chain_hashes,
-            next_offset,
-            page_size,
-            show_all,
-        ));
-    }
-    todo!()
+    HttpResponse::Ok().body(views::get_partial_blocks(
+        blocks,
+        main_chain_hashes,
+        next_offset,
+        page_size,
+        show_all,
+    ))
 }

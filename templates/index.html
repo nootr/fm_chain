@@ -163,6 +163,7 @@
         </div>
       </footer>
     </div>
+    {% if let Some(html) = modal %}{{ html | safe }}{% endif %}
     {% if let Some(token) = cloudflare_code %}
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "{{ token }}"}'></script>
     {% endif %}
