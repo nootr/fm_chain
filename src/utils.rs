@@ -3,6 +3,13 @@ use sha2::{Digest, Sha256};
 
 use crate::cube::Move;
 
+pub fn is_htmx_request(request: &actix_web::HttpRequest) -> bool {
+    request
+        .headers()
+        .get("HX-Request")
+        .is_some_and(|h| h == "true")
+}
+
 pub fn parse_moves(s: &str) -> Vec<Move> {
     let mut moves = Vec::new();
     let mut chars = s.chars().peekable();

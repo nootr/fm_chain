@@ -21,7 +21,7 @@ struct BlockFormTemplate<'a> {
     parent_hash: &'a str,
 }
 
-pub fn get_block(parent_hash: &str) -> String {
+pub fn get_partial_block(parent_hash: &str) -> String {
     BlockFormTemplate { parent_hash }
         .render()
         .expect("Failed to render template")
@@ -38,7 +38,7 @@ struct SolutionFormTemplate<'a> {
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn get_solution(
+pub fn get_partial_solution(
     parent_hash: &str,
     name: &str,
     message: &str,
@@ -66,7 +66,7 @@ struct BlocksTemplate {
     show_all: bool,
 }
 
-pub fn get_blocks(
+pub fn get_partial_blocks(
     blocks: Vec<Block>,
     main_chain_hashes: HashSet<String>,
     next_offset: u32,

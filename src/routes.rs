@@ -7,8 +7,8 @@ use crate::config;
 use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
-    calculate_hash, cleanup_scramble, format_data, format_moves, parse_moves, scramble_from_hash,
-    verify_solution,
+    calculate_hash, cleanup_scramble, format_data, format_moves, is_htmx_request, parse_moves,
+    scramble_from_hash, verify_solution,
 };
 use crate::views;
 
@@ -55,6 +55,7 @@ struct InitialBlockInfo {
 
 #[get("/block")]
 async fn get_block(
+    request: actix_web::HttpRequest,
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
@@ -69,11 +70,15 @@ async fn get_block(
             return HttpResponse::NotFound().body("Parent block not found");
         }
     };
-    HttpResponse::Ok().body(views::get_block(&block_info.parent_hash))
+    if is_htmx_request(&request) {
+        return HttpResponse::Ok().body(views::get_partial_block(&block_info.parent_hash));
+    }
+    todo!()
 }
 
 #[get("/solution")]
 async fn get_solution(
+    request: actix_web::HttpRequest,
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
@@ -96,13 +101,16 @@ async fn get_solution(
     cleanup_scramble(&mut raw_scramble);
     let scramble = format_moves(&raw_scramble);
 
-    HttpResponse::Ok().body(views::get_solution(
-        &block_info.parent_hash,
-        &name,
-        &message,
-        &scramble,
-        &hash,
-    ))
+    if is_htmx_request(&request) {
+        return HttpResponse::Ok().body(views::get_partial_solution(
+            &block_info.parent_hash,
+            &name,
+            &message,
+            &scramble,
+            &hash,
+        ));
+    }
+    todo!()
 }
 
 #[derive(Debug, Deserialize)]
@@ -189,6 +197,7 @@ pub struct BlockQueryParams {
 
 #[get("/blocks")]
 async fn get_blocks(
+    request: actix_web::HttpRequest,
     db: web::Data<sqlx::SqlitePool>,
     query_params: web::Query<BlockQueryParams>,
 ) -> impl Responder {
@@ -204,11 +213,14 @@ async fn get_blocks(
         .await
         .expect("Unable to fetch all blocks");
 
-    HttpResponse::Ok().body(views::get_blocks(
-        blocks,
-        main_chain_hashes,
-        next_offset,
-        page_size,
-        show_all,
-    ))
+    if is_htmx_request(&request) {
+        return HttpResponse::Ok().body(views::get_partial_blocks(
+            blocks,
+            main_chain_hashes,
+            next_offset,
+            page_size,
+            show_all,
+        ));
+    }
+    todo!()
 }
