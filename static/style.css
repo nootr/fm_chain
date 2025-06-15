@@ -625,6 +625,10 @@ hr {
   margin-bottom: 1rem;
 }
 
+.block-message pre {
+  white-space: pre-line;
+}
+
 .icon {
   display: inline-block;
   width: 1em;
