@@ -107,16 +107,16 @@
     <div
       x-data="{
         show: false,
-        showAll: false,
+        tab: 'blockchain-tab',
 
         init() {
           const params = new URLSearchParams(window.location.search);
-          this.showAll = params.get('all') === 'true';
+          this.tab = params.get('all') === 'true' ? 'all-blocks-tab' : 'blockchain-tab';
           $nextTick(() => { this.show = true });
         },
         updateQueryParam() {
           const url = new URL(window.location);
-          url.searchParams.set('all', this.showAll);
+          url.searchParams.set('all', this.tab === 'all-blocks-tab' ? 'true' : 'false');
           window.history.replaceState({}, '', url);
           document.getElementById('blocks').dispatchEvent(new Event('update'));
         }
@@ -127,19 +127,18 @@
       >
       <main class="container">
         <div class="screen">
-          <input type="hidden" name="all" :value="showAll"/>
+          <input type="hidden" name="all" :value="tab === 'all-blocks-tab' ? 'true' : 'false'">
+          <div x-effect="updateQueryParam()"></div>
           <div class="recommended-tip">
             <p>Tip: look for the <span class="tag tag-recommended">Recommended</span> blocks to find the longest chains to continue.</p>
           </div>
-          <div class="checkbox-wrapper">
-            <input class="switch" type="checkbox" id="all" x-model="showAll" @change="updateQueryParam"/>
-            <label for="all">
-              <span class="switch-x-text">Click to show </span>
-              <span class="switch-x-toggletext">
-                <span class="switch-x-unchecked"><span class="switch-x-hiddenlabel">Unchecked: </span>all the blocks</span>
-                <span class="switch-x-checked"><span class="switch-x-hiddenlabel">Checked: </span>the main blockchain</span>
-              </span>
-            </label>
+          <div class="tabs-container">
+            <div class="tabs-wrapper">
+              <input type="radio" id="blockchain-tab" name="view-tabs" class="tab-input" value="blockchain-tab" x-model="tab">
+              <label for="blockchain-tab" class="tab-label">Blockchain</label>
+              <input type="radio" id="all-blocks-tab" name="view-tabs" class="tab-input" value="all-blocks-tab" x-model="tab">
+              <label for="all-blocks-tab" class="tab-label">All Blocks</label>
+            </div>
           </div>
           <ul
             id="blocks"
