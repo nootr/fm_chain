@@ -575,10 +575,6 @@ hr {
   border: 0.5px solid var(--text-muted);
 }
 
-.fixed-spacing {
-  white-space: pre;
-}
-
 .screen {
   width: 600px;
   max-width: 100%;
