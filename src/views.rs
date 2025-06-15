@@ -8,12 +8,14 @@ use crate::models::Block;
 struct IndexTemplate {
     cloudflare_code: Option<String>,
     modal: Option<String>,
+    recommended_block_count: usize,
 }
 
-pub fn get_index(cloudflare_code: Option<String>) -> String {
+pub fn get_index(cloudflare_code: Option<String>, recommended_block_count: usize) -> String {
     IndexTemplate {
         cloudflare_code,
         modal: None,
+        recommended_block_count,
     }
     .render()
     .expect("Failed to render template")
@@ -37,7 +39,11 @@ pub fn get_partial_block(parent_hash: &str) -> String {
     .expect("Failed to render template")
 }
 
-pub fn get_block(cloudflare_code: Option<String>, parent_hash: &str) -> String {
+pub fn get_block(
+    cloudflare_code: Option<String>,
+    parent_hash: &str,
+    recommended_block_count: usize,
+) -> String {
     let modal = BlockFormTemplate {
         parent_hash,
         message: None,
@@ -49,6 +55,7 @@ pub fn get_block(cloudflare_code: Option<String>, parent_hash: &str) -> String {
     IndexTemplate {
         cloudflare_code,
         modal: Some(modal),
+        recommended_block_count,
     }
     .render()
     .expect("Failed to render template")
@@ -101,6 +108,7 @@ pub fn get_solution(
     message: &str,
     scramble: &str,
     hash: &str,
+    recommended_block_count: usize,
 ) -> String {
     let solution_partial = SolutionFormTemplate {
         parent_hash,
@@ -123,6 +131,7 @@ pub fn get_solution(
     IndexTemplate {
         cloudflare_code,
         modal: Some(modal),
+        recommended_block_count,
     }
     .render()
     .expect("Failed to render template")

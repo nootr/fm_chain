@@ -58,6 +58,25 @@ impl Block {
         self.is_from_last_week() || self.height == 0
     }
 
+    // Returns the number of recommended blocks
+    pub async fn get_recommended_count(db: &SqlitePool) -> Result<usize, sqlx::Error> {
+        let blocks = Self::find_all(db, false, None, None)
+            .await?
+            .into_iter()
+            .filter(|b| b.can_create_child())
+            .collect::<Vec<_>>();
+
+        if blocks.is_empty() {
+            return Ok(0);
+        }
+
+        let optimal_height: i64 = blocks
+            .first()
+            .expect("At least one block should be available")
+            .height;
+        Ok(blocks.iter().filter(|b| b.height == optimal_height).count())
+    }
+
     // Returns a list of tags for this block
     pub fn tags(&self, blocks: &[Block], main_chain_hashes: &HashSet<String>) -> Vec<BlockTag> {
         let mut tags = vec![];
@@ -680,5 +699,14 @@ mod tests {
             .expect("Failed to check if hash and solution exist");
 
         assert!(exists, "Expected the block's hash and solution to exist");
+    }
+
+    #[sqlx::test(fixtures("../fixtures/blocks.sql"))]
+    async fn test_recommended_count(pool: SqlitePool) {
+        let recommended_count = Block::get_recommended_count(&pool)
+            .await
+            .expect("Failed to get recommended block count");
+
+        assert_eq!(recommended_count, 2, "Recommended count should be 2");
     }
 }

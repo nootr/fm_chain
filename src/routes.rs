@@ -1,6 +1,7 @@
 use actix_files::NamedFile;
 use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::Deserialize;
+use std::time::Duration;
 
 use crate::cache::{Cache, MemoryCache};
 use crate::config;
@@ -19,6 +20,7 @@ async fn favicon() -> impl Responder {
 
 #[get("/")]
 async fn get_index(
+    db: web::Data<sqlx::SqlitePool>,
     conf: web::Data<config::Config>,
     cache: web::Data<MemoryCache<String, String>>,
 ) -> impl Responder {
@@ -32,10 +34,17 @@ async fn get_index(
     }
 
     let cloudflare_code = conf.cloudflare_code.clone();
-    let response = views::get_index(cloudflare_code);
+    let recommended_block_count = Block::get_recommended_count(&db)
+        .await
+        .expect("Failed to get recommended block count");
+    let response = views::get_index(cloudflare_code, recommended_block_count);
 
     cache
-        .set(&cache_key, response.clone(), None)
+        .set(
+            &cache_key,
+            response.clone(),
+            Some(Duration::from_secs(60 * 60)),
+        )
         .expect("Failed to cache index page");
 
     HttpResponse::Ok().body(response)
@@ -76,7 +85,14 @@ async fn get_block(
     }
 
     let cloudflare_code = conf.cloudflare_code.clone();
-    HttpResponse::Ok().body(views::get_block(cloudflare_code, &block_info.parent_hash))
+    let recommended_block_count = Block::get_recommended_count(&db)
+        .await
+        .expect("Failed to get recommended block count");
+    HttpResponse::Ok().body(views::get_block(
+        cloudflare_code,
+        &block_info.parent_hash,
+        recommended_block_count,
+    ))
 }
 
 #[get("/solution")]
@@ -127,6 +143,9 @@ async fn get_solution(
     }
 
     let cloudflare_code = conf.cloudflare_code.clone();
+    let recommended_block_count = Block::get_recommended_count(&db)
+        .await
+        .expect("Failed to get recommended block count");
     HttpResponse::Ok().body(views::get_solution(
         cloudflare_code,
         &block_info.parent_hash,
@@ -134,6 +153,7 @@ async fn get_solution(
         &message,
         &scramble,
         &hash,
+        recommended_block_count,
     ))
 }
 

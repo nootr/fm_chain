@@ -725,6 +725,21 @@ hr {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.recommended-count {
+  position: absolute;
+  background-color: var(--tag-bg-recommended);
+  color: var(--tag-text-recommended);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 24px;
+  text-align: center;
+  display: inline-block;
+  transform: translateY(-30%);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .container {
