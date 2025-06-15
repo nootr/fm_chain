@@ -25,8 +25,6 @@ A blockchain which uses Fewest Moves solutions to hash-based scrambles as proof 
 cargo install sqlx-cli --no-default-features --features sqlite
 cp .env.example .env
 touch app.db
-sqlx migrate run
-cargo run --bin setup
 
 # Run migration
 sqlx migrate run
