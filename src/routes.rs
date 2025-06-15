@@ -220,7 +220,9 @@ async fn post_solution(
             .body("Failed to create block. Please try again later.");
     };
 
-    let response = HttpResponse::Ok().body("");
+    let response = HttpResponse::TemporaryRedirect()
+        .append_header(("HX-Redirect", "/?all=true"))
+        .finish();
     FlashMessage::info("Block created successfully. Thank you!").set(response)
 }
 
