@@ -55,6 +55,16 @@ pub fn get_block(cloudflare_code: Option<String>, parent_hash: &str) -> String {
 }
 
 #[derive(Template)]
+#[template(path = "solution_form_placeholder.html")]
+struct SolutionFormPlaceholderTemplate;
+
+pub fn get_solution_placeholder() -> String {
+    SolutionFormPlaceholderTemplate
+        .render()
+        .expect("Failed to render template")
+}
+
+#[derive(Template)]
 #[template(path = "solution_form.html")]
 struct SolutionFormTemplate<'a> {
     parent_hash: &'a str,

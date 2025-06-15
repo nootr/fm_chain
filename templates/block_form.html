@@ -91,7 +91,7 @@
       {% if let Some(html) = solution_html %}
       {{ html | safe }}
       {% else %}
-      <div id="solution-form" hidden></div>
+      {% include "solution_form_placeholder.html" %}
       {% endif %}
     </div>
   </div>

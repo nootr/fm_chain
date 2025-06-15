@@ -86,6 +86,17 @@ async fn get_solution(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Query<InitialBlockInfo>,
 ) -> impl Responder {
+    if block_info.parent_hash.is_empty() {
+        return HttpResponse::BadRequest().body("Parent hash is required.");
+    }
+
+    if block_info.name.clone().unwrap_or_default().is_empty()
+        || block_info.message.clone().unwrap_or_default().is_empty()
+    {
+        // Only render block if fields are missing
+        return HttpResponse::Ok().body("<div id=\"solution-form\" hidden></div>");
+    }
+
     match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
             if !block.can_create_child() {
@@ -140,17 +151,28 @@ async fn post_solution(
     db: web::Data<sqlx::SqlitePool>,
     block_info: web::Form<CompleteBlockInfo>,
 ) -> impl Responder {
-    match Block::find_by_hash(&db, &block_info.parent_hash).await {
+    if block_info.parent_hash.is_empty()
+        || block_info.name.is_empty()
+        || block_info.message.is_empty()
+        || block_info.solution.is_empty()
+        || block_info.solution_description.is_empty()
+    {
+        return HttpResponse::BadRequest().body("All fields are required.");
+    }
+
+    let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
             if !block.can_create_child() {
                 return HttpResponse::BadRequest()
                     .body("This block cannot be used as a parent for a new block.");
             }
+            block
         }
         Err(_) => {
             return HttpResponse::NotFound().body("Parent block not found");
         }
     };
+
     let data = format_data(
         &block_info.parent_hash,
         &block_info.name,
@@ -159,13 +181,6 @@ async fn post_solution(
     let hash = calculate_hash(&data);
     let mut raw_scramble = scramble_from_hash(&hash);
     cleanup_scramble(&mut raw_scramble);
-    let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
-        Ok(block) => block,
-        Err(_) => {
-            let resp = HttpResponse::BadRequest().body("Parent block not found");
-            return FlashMessage::error("Parent block not found").set(resp);
-        }
-    };
 
     let data = format_data(&parent_block.hash, &block_info.name, &block_info.message);
     let hash = calculate_hash(&data);
