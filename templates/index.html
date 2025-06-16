@@ -109,6 +109,10 @@
         show: false,
         tab: 'blockchain-tab',
 
+        get showAll() {
+          return this.tab === 'all-blocks-tab';
+        },
+
         init() {
           const params = new URLSearchParams(window.location.search);
           this.tab = params.get('all') === 'true' ? 'all-blocks-tab' : 'blockchain-tab';
@@ -127,11 +131,8 @@
       >
       <main class="container">
         <div class="screen">
-          <input type="hidden" name="all" :value="tab === 'all-blocks-tab' ? 'true' : 'false'">
+          <input type="hidden" name="all" :value="showAll">
           <div x-effect="updateQueryParam()"></div>
-          <div class="recommended-tip">
-            <p>Tip: look for the <span class="tag tag-recommended">Recommended</span> blocks to find the longest chains to continue.</p>
-          </div>
           <div class="tabs-container">
             <div class="tabs-wrapper">
               <input type="radio" id="blockchain-tab" name="view-tabs" class="tab-input" value="blockchain-tab" x-model="tab">
@@ -142,6 +143,9 @@
                 <span class="recommended-count">{{ recommended_block_count }}</span>
               </label>
             </div>
+          </div>
+          <div x-show="showAll" class="recommended-tip">
+            <p>Tip: look for the <span class="tag tag-recommended">Recommended</span> blocks to find the longest chains to continue.</p>
           </div>
           <ul
             id="blocks"
