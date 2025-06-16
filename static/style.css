@@ -63,7 +63,7 @@ ol, ul {
 
 .explanation {
   max-width: 800px;
-  margin: 1em auto;
+  margin: 0 auto;
   color: var(--text-primary);
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -97,12 +97,10 @@ ol, ul {
 
 .explanation ol {
   padding: 0;
-  margin-bottom: 1rem;
   display: block;
 }
 
 .explanation li {
-  margin-bottom: 2em;
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
