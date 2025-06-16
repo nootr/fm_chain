@@ -616,9 +616,6 @@ hr {
 
 .clickable-block:hover {
   border: 1px solid var(--accent-light);
-}
-
-.block-closed {
   cursor: pointer;
 }
 
