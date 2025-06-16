@@ -1,7 +1,7 @@
 {% for block in blocks %}
 <li
   class="block{% if !block.can_create_child(None) %} block-cannot-create-child{% endif %}{% if show_all %} clickable-block{% endif %}"
-  :class="{ 'block-closed': !open }"
+  {% if show_all %}:class="{ 'block-closed': !open }"{% endif %}
   x-data="{ 'open': false }"
   @click="open = true"
   @click.outside="open = false"
@@ -32,7 +32,11 @@
           </tr>
           <tr>
             <td>Solution</td>
-            <td>{{ block.solution }} ({{ block.solution_moves }} moves)</td>
+            <td>{{ block.solution }}</td>
+          </tr>
+          <tr>
+            <td>Solution moves</td>
+            <td>{{ block.solution_moves }}</td>
           </tr>
           <tr>
             <td>Description</td>
