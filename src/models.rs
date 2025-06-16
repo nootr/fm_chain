@@ -54,8 +54,8 @@ impl Block {
     }
 
     // Returns true if the user is allowed to create a child block
-    pub fn can_create_child(&self) -> bool {
-        self.is_from_last_week() || self.height == 0
+    pub fn can_create_child(&self, time: Option<NaiveDateTime>) -> bool {
+        self.is_from_last_week(time) || self.height == 0
     }
 
     // Returns the number of recommended blocks
@@ -63,7 +63,7 @@ impl Block {
         let blocks = Self::find_all(db, false, None, None)
             .await?
             .into_iter()
-            .filter(|b| b.can_create_child())
+            .filter(|b| b.can_create_child(None))
             .collect::<Vec<_>>();
 
         if blocks.is_empty() {
@@ -78,11 +78,16 @@ impl Block {
     }
 
     // Returns a list of tags for this block
-    pub fn tags(&self, blocks: &[Block], main_chain_hashes: &HashSet<String>) -> Vec<BlockTag> {
+    pub fn tags(
+        &self,
+        time: Option<NaiveDateTime>,
+        blocks: &[Block],
+        main_chain_hashes: &HashSet<String>,
+    ) -> Vec<BlockTag> {
         let mut tags = vec![];
         let optimal_height: i64 = blocks
             .iter()
-            .find(|b| b.can_create_child())
+            .find(|b| b.can_create_child(time))
             .expect("There should be at least one block that can create a child")
             .height;
 
@@ -90,11 +95,11 @@ impl Block {
             tags.push(BlockTag::Genesis);
         }
 
-        if !self.is_from_last_week() && self.height > 0 {
+        if !self.is_from_last_week(time) && self.height > 0 {
             tags.push(BlockTag::New);
         }
 
-        if (self.height == optimal_height) && self.can_create_child() {
+        if (self.height == optimal_height) && self.can_create_child(time) {
             tags.push(BlockTag::Recommended);
         }
 
@@ -139,9 +144,9 @@ impl Block {
     }
 
     // Returns true if the block is from before Monday this week
-    fn is_from_last_week(&self) -> bool {
+    fn is_from_last_week(&self, time: Option<NaiveDateTime>) -> bool {
         let created_at = self.created_at.expect("Block should have a creation date");
-        let now = Utc::now().naive_utc();
+        let now = time.unwrap_or_else(|| Utc::now().naive_utc());
         let today = now.date();
         let days_since_monday = match today.weekday() {
             Weekday::Mon => 0,
@@ -538,9 +543,10 @@ mod tests {
     }
 
     #[test]
-    fn test_tags_static() {
+    fn test_tags() {
         let current_test_time =
-            NaiveDateTime::parse_from_str("2025-06-12 04:55:48", "%Y-%m-%d %H:%M:%S").unwrap();
+            NaiveDateTime::parse_from_str("2024-09-19 18:45:00", "%Y-%m-%d %H:%M:%S")
+                .expect("Failed to parse test time");
 
         let genesis_block = Block {
             hash: "genesis_hash".to_string(),
@@ -563,7 +569,7 @@ mod tests {
             solution: "A".to_string(),
             solution_moves: 5,
             solution_description: "Solution A".to_string(),
-            created_at: Some(current_test_time - Duration::hours(1)),
+            created_at: Some(current_test_time - Duration::minutes(1)),
         };
 
         let block_b = Block {
@@ -575,7 +581,7 @@ mod tests {
             solution: "B".to_string(),
             solution_moves: 8,
             solution_description: "Solution B".to_string(),
-            created_at: Some(current_test_time - Duration::hours(2)),
+            created_at: Some(current_test_time - Duration::hours(1)),
         };
 
         let block_c = Block {
@@ -628,7 +634,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_a.hash)
             .expect("Block A should be present")
-            .tags(&blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
         let expected_tags_a = vec![BlockTag::New, BlockTag::MainChain];
         assert_eq!(actual_tags_a, expected_tags_a, "Tags mismatch for Block A");
 
@@ -636,7 +642,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_d.hash)
             .expect("Block D should be present")
-            .tags(&blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
         let expected_tags_d = vec![BlockTag::New, BlockTag::MainChain];
         assert_eq!(actual_tags_d, expected_tags_d, "Tags mismatch for Block D");
 
@@ -644,7 +650,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == genesis_block.hash)
             .expect("Genesis block should be present")
-            .tags(&blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
         let expected_tags_genesis = vec![BlockTag::Genesis, BlockTag::MainChain];
         assert_eq!(
             actual_tags_genesis, expected_tags_genesis,
@@ -655,7 +661,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_b.hash)
             .expect("Block B should be present")
-            .tags(&blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
         let expected_tags_b = vec![BlockTag::New];
         assert_eq!(actual_tags_b, expected_tags_b, "Tags mismatch for Block B");
 
@@ -663,7 +669,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_c.hash)
             .expect("Block C should be present")
-            .tags(&blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
         let expected_tags_c = vec![BlockTag::Recommended];
         assert_eq!(actual_tags_c, expected_tags_c, "Tags mismatch for Block C");
     }

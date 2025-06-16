@@ -71,7 +71,7 @@ async fn get_block(
 ) -> impl Responder {
     match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
-            if !block.can_create_child() {
+            if !block.can_create_child(None) {
                 return HttpResponse::BadRequest()
                     .body("This block cannot be used as a parent for a new block.");
             }
@@ -115,7 +115,7 @@ async fn get_solution(
 
     match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
-            if !block.can_create_child() {
+            if !block.can_create_child(None) {
                 return HttpResponse::BadRequest()
                     .body("This block cannot be used as a parent for a new block.");
             }
@@ -182,7 +182,7 @@ async fn post_solution(
 
     let parent_block = match Block::find_by_hash(&db, &block_info.parent_hash).await {
         Ok(block) => {
-            if !block.can_create_child() {
+            if !block.can_create_child(None) {
                 return HttpResponse::BadRequest()
                     .body("This block cannot be used as a parent for a new block.");
             }

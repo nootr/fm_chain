@@ -1,6 +1,6 @@
 {% for block in blocks %}
 <li
-  class="block{% if !block.can_create_child() %} block-cannot-create-child{% endif %}{% if show_all %} clickable-block{% endif %}"
+  class="block{% if !block.can_create_child(None) %} block-cannot-create-child{% endif %}{% if show_all %} clickable-block{% endif %}"
   :class="{ 'block-closed': !open }"
   x-data="{ 'open': false }"
   @click="open = true"
@@ -11,7 +11,7 @@
       <p class="hash">{{ block.short_hash() }}</p>
       {% if show_all %}
       <div class="tag tag-chain-length" title="Chain length: {{ block.height + 1 }}">Chain length: {{ block.height + 1 }}</div>
-      {% for tag in block.tags(&blocks, main_chain_hashes) %}
+      {% for tag in block.tags(None, &blocks, main_chain_hashes) %}
       <div class="tag tag-{{ tag.value() }}" title="{{ tag.label() }}">{{ tag.label() }}</div>
       {% endfor %}
       {% endif %}
@@ -40,7 +40,7 @@
           </tr>
         </tbody>
       </table>
-      {% if block.can_create_child() %}
+      {% if block.can_create_child(None) %}
       <button
         class="button button-primary"
         hx-get="/block?parent_hash={{ block.hash }}"
