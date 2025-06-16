@@ -82,7 +82,7 @@
       <button @click="open = !open" class="explanation-toggle">
         How does it work? <span x-text="open ? '−' : '+'"></span>
       </button>
-      <div x-show="open" x-transition class="explanation-content">
+      <div x-show="open" x-transition class="explanation-content" x-cloak>
         <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
         <ol>
           <li>
