@@ -3,7 +3,7 @@
 :root {
   --bg-primary: #030712;
   --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.8);
+  --bg-card: rgba(17, 24, 39, 0.9);
   --bg-input: #1f2937;
   --border-color: #374151;
   --text-primary: #f9fafb;
@@ -62,11 +62,27 @@ ol, ul {
 }
 
 .explanation {
-  max-width: 800px;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  min-width: 50vw;
+  max-width: 100vw;
+  max-height: 80vh;
   margin: 0 auto;
   color: var(--text-primary);
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .explanation {
+    bottom: 2rem;
+    overflow: hidden;
+  }
 }
 
 .explanation-toggle {
@@ -90,19 +106,40 @@ ol, ul {
     padding: 2rem;
 }
 
+.explanation h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
 .explanation p {
   font-size: 1rem;
-  margin-bottom: 1em;
+}
+
+.explanation p:not(:last-child) {
+  margin-bottom: 1rem;
 }
 
 .explanation ol {
-  padding: 0;
+  padding: 1.5rem;
+  margin: 1rem;
   display: block;
+  border: 1px solid var(--border-color);
+}
+
+.explanation ul {
+  margin: 1rem;
 }
 
 .explanation li {
   font-size: 0.9rem;
   color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.explanation li:last-child {
+  margin-bottom: 0;
 }
 
 .explanation-step {
@@ -120,9 +157,9 @@ ol, ul {
   }
 
   .explanation li {
-    margin-bottom: 0;
     flex: 1;
     padding: 0 1em;
+    margin-bottom: 1rem;
   }
 }
 
@@ -524,14 +561,13 @@ footer {
   padding: 0.5rem;
   border-radius: var(--radius);
   font-size: 0.875rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem !important;
 }
 
 .block-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.8rem;
 }
 
 .hash-and-tags {
@@ -584,7 +620,7 @@ footer {
   font-size: 0.875rem;
 }
 
-.block-createdat {
+.block-scramble {
   font-size: 0.75rem;
   color: var(--text-secondary);
   width: 100%;
@@ -604,7 +640,7 @@ hr {
 }
 
 .screen > * {
-  margin-bottom: 2rem;
+  margin-bottom: 0.8rem;
 }
 
 .block {

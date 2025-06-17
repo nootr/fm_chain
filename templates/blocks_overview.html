@@ -57,9 +57,8 @@
       <p class="block-too-new-warning">This block is made this week, so you can't continue it with a new block yet. Please select an older block.</p>
       {% endif %}
     </div>
-  {% endif %}
-  {% if let Some(timestamp) = block.created_at %}
-  <p class="block-createdat">{{ timestamp }}</p>
+  {% else %}
+    <p class="block-scramble">{{ block.scramble() }}</p>
   {% endif %}
 </li>
 {% endfor %}

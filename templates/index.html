@@ -78,28 +78,6 @@
         </div>
       </div>
     </header>
-    <div x-data="{ open: $persist(false) }" class="explanation">
-      <button @click="open = !open" class="explanation-toggle">
-        How does it work? <span x-text="open ? '−' : '+'"></span>
-      </button>
-      <div x-show="open" x-transition class="explanation-content" x-cloak>
-        <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
-        <ol>
-          <li>
-            <span class="explanation-step">✍️ Write Words</span>
-            <div class="step-description">Add any text. It becomes part of the block and is used to generate your cube scramble.</div>
-          </li>
-          <li>
-            <span class="explanation-step">🧩 Solve the Cube</span>
-            <div class="step-description">Use the fewest moves to solve the scramble that is created from your block's hash.</div>
-          </li>
-          <li>
-            <span class="explanation-step">⛓️ Extend the Chain</span>
-            <div class="step-description">Longest chain wins! Ties go to the branch with the most efficient last solve.</div>
-          </li>
-        </ol>
-      </div>
-    </div>
     <div
       x-data="{
         show: false,
@@ -167,6 +145,44 @@
           Feedback? Please <a href="https://github.com/nootr/fm_chain/issues" target="_blank" rel="noopener noreferrer" class="footer-text">let me know</a> ♥️
         </div>
       </footer>
+    </div>
+    <div x-data="{ open: $persist(false) }" class="explanation">
+      <button @click="open = !open" class="explanation-toggle">
+        🔎 How does it work? <span x-text="open ? '−' : '+'"></span>
+      </button>
+      <div x-show="open" x-transition class="explanation-content" x-cloak>
+        <p>Welcome to FMChain, a blockchain which uses Rubik's Cube Fewest Moves solves as Proof-of-Work!</p>
+        <ol>
+          <li>
+            <span class="explanation-step">✍️ Write Words</span>
+            <div class="step-description">Add any text. It becomes part of the block and is used to generate your cube scramble.</div>
+          </li>
+          <li>
+            <span class="explanation-step">🧩 Solve the Cube</span>
+            <div class="step-description">Use the fewest moves to solve the scramble that is created from your block's hash.</div>
+          </li>
+          <li>
+            <span class="explanation-step">⛓️ Extend the Chain</span>
+            <div class="step-description">Longest chain wins! Ties go to the branch with the most efficient last solve.</div>
+          </li>
+        </ol>
+        <p>But, how do you play?</p>
+        <ul>
+            <li>
+                <span class="explanation-step">🔗 Select "All blocks"</span>
+                <div class="step-description">Click on the "All blocks" tab to see all available blocks.</div>
+            </li>
+            <li>
+                <span class="explanation-step">🔍 Find a block</span>
+                <div class="step-description">Look for a block you like. You can see its details by clicking on it.</div>
+            </li>
+            <li>
+                <span class="explanation-step">➕ Add a new block</span>
+                <div class="step-description">Click "Add a new block" to create a new block, get a scramble and play!</div>
+            </li>
+        </ul>
+        <p>Thanks for playing and have fun! ♥️</p>
+      </div>
     </div>
     {% if let Some(html) = modal %}{{ html | safe }}{% endif %}
     {% if let Some(token) = cloudflare_code %}
