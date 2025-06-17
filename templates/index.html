@@ -151,8 +151,7 @@
       @scroll.window="opacity = Math.max(0, 1 - window.scrollY / 1000)"
       @click.away="open = false"
       class="explanation"
-      :class="{ 'explanation-closed': !open }"
-      :style="`opacity: ${opacity}`"
+      :style="`opacity: ${open ? 1 : opacity}`"
       >
       <button @click="open = !open" class="explanation-toggle">
         ⚙️ How does it work? <span x-text="open ? '−' : '+'"></span>
