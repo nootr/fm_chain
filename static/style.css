@@ -3,7 +3,7 @@
 :root {
   --bg-primary: #030712;
   --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.9);
+  --bg-card: rgba(17, 24, 39);
   --bg-input: #1f2937;
   --border-color: #374151;
   --text-primary: #f9fafb;
@@ -78,9 +78,12 @@ ol, ul {
   overflow-y: auto;
 }
 
+.explanation-closed {
+  opacity: 0.8;
+}
+
 @media (min-width: 768px) {
   .explanation {
-    bottom: 2rem;
     overflow: hidden;
   }
 }
@@ -293,6 +296,7 @@ main {
   top: 4rem;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1001;
 }
 
 .card-container {

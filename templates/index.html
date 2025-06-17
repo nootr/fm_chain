@@ -146,7 +146,7 @@
         </div>
       </footer>
     </div>
-    <div x-data="{ open: $persist(false) }" class="explanation">
+    <div x-data="{ open: $persist(false) }" class="explanation" :class="{ 'explanation-closed': !open }">
       <button @click="open = !open" class="explanation-toggle">
         🔎 How does it work? <span x-text="open ? '−' : '+'"></span>
       </button>
