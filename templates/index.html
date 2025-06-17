@@ -148,7 +148,8 @@
     </div>
     <div
       x-data="{ open: false, opacity: 1 }"
-      @scroll.window="opacity = Math.max(0, 1 - window.scrollY / 1000)"
+      x-show="opacity > 0 || open"
+      @scroll.window="opacity = Math.max(0, 1 - window.scrollY / 300)"
       @click.away="open = false"
       class="explanation"
       :style="`opacity: ${open ? 1 : opacity}`"
