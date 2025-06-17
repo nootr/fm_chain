@@ -146,7 +146,14 @@
         </div>
       </footer>
     </div>
-    <div x-data="{ open: $persist(false) }" class="explanation" :class="{ 'explanation-closed': !open }">
+    <div
+      x-data="{ open: false, opacity: 1 }"
+      @scroll.window="opacity = Math.max(0, 1 - window.scrollY / 1000)"
+      @click.away="open = false"
+      class="explanation"
+      :class="{ 'explanation-closed': !open }"
+      :style="`opacity: ${opacity}`"
+      >
       <button @click="open = !open" class="explanation-toggle">
         ⚙️ How does it work? <span x-text="open ? '−' : '+'"></span>
       </button>
@@ -182,6 +189,9 @@
             </li>
         </ul>
         <p>Thanks for playing and have fun! ♥️</p>
+        <button @click="open = false" class="button button-secondary explanation-close">
+          Close
+        </button>
       </div>
     </div>
     {% if let Some(html) = modal %}{{ html | safe }}{% endif %}

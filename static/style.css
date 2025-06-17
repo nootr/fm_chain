@@ -69,7 +69,7 @@ ol, ul {
   width: 800px;
   min-width: 50vw;
   max-width: 100vw;
-  max-height: 80vh;
+  max-height: 90vh;
   margin: 0 auto;
   color: var(--text-primary);
   background-color: var(--bg-card);
@@ -82,9 +82,17 @@ ol, ul {
   opacity: 0.8;
 }
 
+.explanation-close {
+  display: block;
+}
+
 @media (min-width: 768px) {
   .explanation {
     overflow: hidden;
+  }
+
+  .explanation-close {
+    display: none !important;
   }
 }
 
@@ -106,7 +114,7 @@ ol, ul {
 }
 
 .explanation-content {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 .explanation h2 {
