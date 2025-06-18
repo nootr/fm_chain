@@ -14,7 +14,6 @@
     <script defer src="/static/alpine.js"></script>
   </head>
   <body>
-    <div class="loading-line"></div>
     <div x-data="{
       messageData: null,
 
@@ -118,9 +117,6 @@
               </label>
             </div>
           </div>
-          <div x-show="showAll" class="recommended-tip">
-            <p>Tip: look for the <span class="tag tag-recommended">Recommended</span> blocks to find the longest chains to continue.</p>
-          </div>
           <ul
             id="blocks"
             hx-get="/blocks"
@@ -147,12 +143,10 @@
       </footer>
     </div>
     <div
-      x-data="{ open: false, opacity: 1 }"
-      x-show="opacity > 0 || open"
-      @scroll.window="opacity = Math.max(0, 1 - window.scrollY / 300)"
+      x-data="{ open: false }"
       @click.away="open = false"
       class="explanation"
-      :style="`opacity: ${open ? 1 : opacity}`"
+      :style="`opacity: ${open ? 1 : 0.9}`"
       >
       <button @click="open = !open" class="explanation-toggle">
         ⚙️ How does it work? <span x-text="open ? '−' : '+'"></span>

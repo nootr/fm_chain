@@ -1,10 +1,7 @@
 {% for block in blocks %}
 <li
   class="block{% if let Some(tag) = block.tags(None, &blocks, main_chain_hashes).first() %} block-{{ tag.value() }}{% endif %}"
-  {% if show_all && (block.height > 0) %}:class="{ 'clickable-block': !open }"{% endif %}
   x-data="{ 'open': false }"
-  @click="open = true"
-  @click.outside="open = false"
   >
   <div class="block-header">
     <div class="hash-and-tags">
@@ -16,50 +13,52 @@
       {% endfor %}
       {% endif %}
     </div>
-    <p class="block-name">{{ block.name }}</p>
+  </div>
+  <div class="block-message"><pre>{{ block.message }}</pre></div>
+  <div class="block-details" x-show="open" x-transition:enter x-cloak :data-block-details-open="open">
+    <table>
+      <tbody>
+        <tr>
+          <td>Scramble</td>
+          <td>{{ block.scramble() }}</td>
+        </tr>
+        <tr>
+          <td>Solution</td>
+          <td>{{ block.solution }}</td>
+        </tr>
+        <tr>
+          <td>Solution moves</td>
+          <td>{{ block.solution_moves }}</td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td>{{ block.solution_description }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% if show_all && block.can_create_child(None) %}
+    <button
+      class="button button-primary"
+      hx-get="/block?parent_hash={{ block.hash }}"
+      hx-swap="beforeend"
+      hx-target="body"
+      hx-trigger="click[!document.querySelector('.modal')]"
+      hx-push-url="true"
+    >Add block</button>
+    {% endif %}
   </div>
   <hr/>
-  <div class="block-message"><pre>{{ block.message }}</pre></div>
-  {% if show_all && (block.height > 0) %}
-    <button x-show="!open" class="button button-secondary">Show details</button>
-    <div x-show="open" :data-block-details-open="open">
-      <table class="block-details">
-        <caption>Block details</caption>
-        <tbody>
-          <tr>
-            <td>Scramble</td>
-            <td>{{ block.scramble() }}</td>
-          </tr>
-          <tr>
-            <td>Solution</td>
-            <td>{{ block.solution }}</td>
-          </tr>
-          <tr>
-            <td>Solution moves</td>
-            <td>{{ block.solution_moves }}</td>
-          </tr>
-          <tr>
-            <td>Description</td>
-            <td>{{ block.solution_description }}</td>
-          </tr>
-        </tbody>
-      </table>
-      {% if block.can_create_child(None) %}
-      <button
-        class="button button-primary"
-        hx-get="/block?parent_hash={{ block.hash }}"
-        hx-swap="beforeend"
-        hx-target="body"
-        hx-trigger="click[!document.querySelector('.modal')]"
-        hx-push-url="true"
-      >Add a new block</button>
-      {% else %}
-      <p class="block-too-new-warning">This block is made this week, so you can't continue it with a new block yet. Please select an older block.</p>
+  <div class="block-info">
+    <div>
+      <span class="block-name">{{ block.name }}</span>
+      {% if let Some(timestamp) = block.created_at %}
+      <span class="block-createdat">{{ timestamp }}</span>
       {% endif %}
     </div>
-  {% else %}
-    <p class="block-scramble">{{ block.scramble() }}</p>
-  {% endif %}
+    {% if block.height > 0 %}
+    <button @click="open = !open" class="block-detail-button">show <span x-text="open ? '-' : '+'"></span></button>
+    {% endif %}
+  </div>
 </li>
 {% endfor %}
 {% if blocks.len() as u32 == page_size %}
