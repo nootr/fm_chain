@@ -1,6 +1,6 @@
 {% for block in blocks %}
 <li
-  class="block{% if !block.can_create_child(None) %} block-cannot-create-child{% endif %}"
+  class="block{% if let Some(tag) = block.tags(None, &blocks, main_chain_hashes).first() %} block-{{ tag.value() }}{% endif %}"
   {% if show_all && (block.height > 0) %}:class="{ 'clickable-block': !open }"{% endif %}
   x-data="{ 'open': false }"
   @click="open = true"

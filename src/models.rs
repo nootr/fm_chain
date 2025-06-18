@@ -91,10 +91,6 @@ impl Block {
             .expect("There should be at least one block that can create a child")
             .height;
 
-        if self.height == 0 {
-            tags.push(BlockTag::Genesis);
-        }
-
         if !self.is_from_last_week(time) && self.height > 0 {
             tags.push(BlockTag::New);
         }
@@ -105,6 +101,10 @@ impl Block {
 
         if main_chain_hashes.contains(&self.hash) {
             tags.push(BlockTag::MainChain);
+        }
+
+        if self.height == 0 {
+            tags.push(BlockTag::Genesis);
         }
 
         tags

@@ -20,14 +20,14 @@
   --success-light: #34d399;
   --success-bg: rgba(16, 185, 129, 0.8);
   --radius: 0.5rem;
-  --tag-bg-new: rgba(16, 185, 129, 0.1);
-  --tag-text-new: #10b981;
+  --tag-bg-recommended: rgba(82, 168, 123, 0.2);
+  --tag-text-recommended: rgba(82, 168, 123, 1);
   --tag-bg-genesis: rgba(239, 68, 68, 0.1);
   --tag-text-genesis: #ef4444;
-  --tag-bg-main-chain: rgba(59, 130, 246, 0.1);
-  --tag-text-main-chain: #3b82f6;
-  --tag-bg-recommended: rgba(249, 115, 22, 0.15);
-  --tag-text-recommended: #f97316;
+  --tag-bg-main-chain: rgba(79, 128, 240, 0.2);
+  --tag-text-main-chain: rgba(79, 128, 240, 1);
+  --tag-bg-new: rgba(255, 195, 0, 0.2);
+  --tag-text-new: rgba(255, 195, 0, 1);
   --tag-bg-chain-length: rgba(221, 66, 244, 0.1);
   --tag-text-chain-length: #dd42f4;
 }
@@ -667,8 +667,16 @@ hr {
   cursor: pointer;
 }
 
-.block-cannot-create-child {
-  border: 1px solid var(--accent-dark);
+.block-genesis {
+  border: 1px solid var(--tag-text-genesis);
+}
+
+.block-recommended {
+  border: 1px solid var(--tag-text-recommended);
+}
+
+.block-main_chain {
+  border: 1px solid var(--tag-text-main-chain);
 }
 
 .block-too-new-warning {
