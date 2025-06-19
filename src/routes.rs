@@ -55,6 +55,32 @@ async fn get_health() -> impl Responder {
     HttpResponse::Ok().body("OK")
 }
 
+#[get("/parent")]
+async fn get_parent(
+    request: actix_web::HttpRequest,
+    conf: web::Data<config::Config>,
+    db: web::Data<sqlx::SqlitePool>,
+) -> impl Responder {
+    let blocks = Block::find_all(&db, false, None, None)
+        .await
+        .expect("Failed to fetch blocks");
+
+    if is_htmx_request(&request) {
+        return HttpResponse::Ok().body(views::get_partial_parent(blocks));
+    }
+
+    let cloudflare_code = conf.cloudflare_code.clone();
+    let recommended_block_count = Block::get_recommended_count(&db)
+        .await
+        .expect("Failed to get recommended block count");
+
+    HttpResponse::Ok().body(views::get_parent(
+        cloudflare_code,
+        recommended_block_count,
+        blocks,
+    ))
+}
+
 #[derive(Deserialize)]
 struct InitialBlockInfo {
     parent_hash: String,

@@ -37,14 +37,6 @@
       </tbody>
     </table>
     {% if show_all && block.can_create_child(None) %}
-    <button
-      class="button button-primary"
-      hx-get="/block?parent_hash={{ block.hash }}"
-      hx-swap="beforeend"
-      hx-target="body"
-      hx-trigger="click[!document.querySelector('.modal')]"
-      hx-push-url="true"
-    >Add block</button>
     {% endif %}
   </div>
   <hr/>

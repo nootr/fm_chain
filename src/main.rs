@@ -36,6 +36,7 @@ async fn main() -> std::io::Result<()> {
             .service(routes::favicon)
             .service(routes::get_health)
             .service(routes::get_index)
+            .service(routes::get_parent)
             .service(routes::get_block)
             .service(routes::get_solution)
             .service(routes::post_solution)

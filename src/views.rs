@@ -22,6 +22,36 @@ pub fn get_index(cloudflare_code: Option<String>, recommended_block_count: usize
 }
 
 #[derive(Template)]
+#[template(path = "parent_form.html")]
+struct ParentFormTemplate {
+    blocks: Vec<Block>,
+}
+
+pub fn get_partial_parent(blocks: Vec<Block>) -> String {
+    ParentFormTemplate { blocks }
+        .render()
+        .expect("Failed to render template")
+}
+
+pub fn get_parent(
+    cloudflare_code: Option<String>,
+    recommended_block_count: usize,
+    blocks: Vec<Block>,
+) -> String {
+    let modal = ParentFormTemplate { blocks }
+        .render()
+        .expect("Failed to render template");
+
+    IndexTemplate {
+        cloudflare_code,
+        modal: Some(modal),
+        recommended_block_count,
+    }
+    .render()
+    .expect("Failed to render template")
+}
+
+#[derive(Template)]
 #[template(path = "block_form.html")]
 struct BlockFormTemplate<'a> {
     parent_hash: &'a str,

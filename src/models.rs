@@ -651,7 +651,7 @@ mod tests {
             .find(|b| b.hash == genesis_block.hash)
             .expect("Genesis block should be present")
             .tags(Some(current_test_time), &blocks, &main_chain_hashes);
-        let expected_tags_genesis = vec![BlockTag::Genesis, BlockTag::MainChain];
+        let expected_tags_genesis = vec![BlockTag::MainChain, BlockTag::Genesis];
         assert_eq!(
             actual_tags_genesis, expected_tags_genesis,
             "Tags mismatch for Genesis Block"

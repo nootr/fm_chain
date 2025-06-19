@@ -1,0 +1,54 @@
+<div
+  id="parent-select-modal"
+  class="card-container modal"
+  x-data="{
+    show: true,
+
+    hide() {
+      this.show = false;
+      setTimeout(() => $el.remove(), 800);
+
+      const url = new URL(window.location);
+      url.pathname = '/';
+      let all = url.searchParams.get('all');
+      if (!!all) {
+        url.search = `?all=${all}`;
+      } else {
+        url.search = '';
+      }
+      window.history.replaceState({}, '', url);
+    }
+  }"
+  x-show="show"
+  x-transition:leave.duration.800ms
+  @click.away="hide()"
+  >
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Select a chain</h1>
+      <p class="card-description">Select a chain to extend</p>
+    </div>
+    <div class="card-content">
+      <ul class="parent-options">
+        {% for block in blocks %}
+        {% if let Some(tag) = block.tags(None, &blocks, &HashSet::new()).first() %}
+        {% if tag.value() != "new" %}
+        <li
+          hx-get="/block?parent_hash={{ block.hash }}"
+          hx-swap="outerHTML"
+          hx-target="#parent-select-modal"
+          hx-push-url="true"
+          {% if tag.value() == "recommended" %}class="parent-recommended"{% endif %}
+          >
+          <div class="parent-line">
+            <span class="parent-title">{{ block.name }}:</span>
+            <span class="parent-message">{{ block.message }}</span>
+          </div>
+        </li>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
