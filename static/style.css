@@ -78,6 +78,14 @@ ol, ul {
   overflow-y: auto;
 }
 
+#explanation-desktop {
+  display: none;
+}
+
+#explanation-mobile {
+  display: block;
+}
+
 .explanation-close {
   display: block;
 }
@@ -85,6 +93,14 @@ ol, ul {
 @media (min-width: 768px) {
   .explanation {
     overflow: hidden;
+  }
+
+  #explanation-desktop {
+    display: block;
+  }
+
+  #explanation-mobile {
+    display: none;
   }
 
   .explanation-close {
@@ -227,6 +243,10 @@ td:first-child {
   justify-content: flex-end;
 }
 
+.header-content-right .button {
+  margin: 0 0 0 auto;
+}
+
 .logo {
   display: flex;
   align-items: center;
@@ -256,11 +276,7 @@ td:first-child {
 }
 
 .github-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   color: var(--text-muted);
-  text-decoration: none;
   font-size: 0.875rem;
 }
 
@@ -582,9 +598,15 @@ footer {
   flex-direction: row;
   width: 50vw;
   margin: 0 auto;
-  margin-bottom: 2rem;
-  padding: 2rem 0;
+  margin-bottom: 4rem;
+  padding: 1rem 0;
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  footer {
+    margin-bottom: 1rem;
+  }
 }
 
 .footer-text {
