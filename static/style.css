@@ -208,6 +208,25 @@ td:first-child {
   margin-bottom: 1rem;
 }
 
+.header-content > div {
+  flex: 1;
+}
+
+.header-content-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-content-center {
+  display: flex;
+  justify-content: center;
+}
+
+.header-content-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .logo {
   display: flex;
   align-items: center;
