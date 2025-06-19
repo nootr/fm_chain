@@ -401,6 +401,11 @@ main {
   min-width: 0
 }
 
+.parent-solution-moves {
+  font-style: italic;
+  font-weight: 200;
+}
+
 .parent-title {
   white-space: nowrap;
   font-weight: bold;
