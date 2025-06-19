@@ -761,6 +761,10 @@ hr {
   cursor: pointer;
 }
 
+.block-detail-button:hover {
+  color: var(--accent-color);
+}
+
 .block-scramble {
     font-size: 0.75rem;
     color: var(--text-secondary);
