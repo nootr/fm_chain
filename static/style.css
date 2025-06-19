@@ -558,6 +558,7 @@ footer {
   flex-direction: row;
   width: 50vw;
   margin: 0 auto;
+  margin-bottom: 2rem;
   padding: 2rem 0;
   text-align: center;
 }
