@@ -1,6 +1,6 @@
 {% for block in blocks %}
 <li
-  class="block{% if let Some(tag) = block.tags(None, &blocks, main_chain_hashes).first() %} block-{{ tag.value() }}{% endif %}"
+  class="block{% if let Some(tag) = block.tags(None, main_chain_hashes, *optimal_height).first() %} block-{{ tag.value() }}{% endif %}"
   x-data="{ 'open': false }"
   >
   <div class="block-header">
@@ -8,7 +8,7 @@
       <p class="hash">{{ block.short_hash() }}</p>
       {% if show_all %}
       <div class="tag tag-chain-length" title="Chain length: {{ block.height + 1 }}">Chain length: {{ block.height + 1 }}</div>
-      {% for tag in block.tags(None, &blocks, main_chain_hashes) %}
+      {% for tag in block.tags(None, main_chain_hashes, *optimal_height) %}
       <div class="tag tag-{{ tag.value() }}" title="{{ tag.label() }}">{{ tag.label() }}</div>
       {% endfor %}
       {% endif %}

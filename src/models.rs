@@ -81,15 +81,10 @@ impl Block {
     pub fn tags(
         &self,
         time: Option<NaiveDateTime>,
-        blocks: &[Block],
         main_chain_hashes: &HashSet<String>,
+        optimal_height: i64,
     ) -> Vec<BlockTag> {
         let mut tags = vec![];
-        let optimal_height: i64 = blocks
-            .iter()
-            .find(|b| b.can_create_child(time))
-            .expect("There should be at least one block that can create a child")
-            .height;
 
         if !self.is_from_last_week(time) && self.height > 0 {
             tags.push(BlockTag::New);
@@ -544,6 +539,7 @@ mod tests {
 
     #[test]
     fn test_tags() {
+        // TODO: update test
         let current_test_time =
             NaiveDateTime::parse_from_str("2024-09-19 18:45:00", "%Y-%m-%d %H:%M:%S")
                 .expect("Failed to parse test time");
@@ -607,6 +603,7 @@ mod tests {
             solution_description: "Solution D".to_string(),
             created_at: Some(current_test_time - Duration::minutes(30)),
         };
+        let optimal_height = block_a.height;
 
         let mut blocks = vec![
             block_a.clone(),

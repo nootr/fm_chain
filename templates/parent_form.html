@@ -31,7 +31,7 @@
     <div class="card-content">
       <ul class="parent-options">
         {% for block in blocks %}
-        {% if let Some(tag) = block.tags(None, &blocks, &HashSet::new()).first() %}
+        {% if let Some(tag) = block.tags(None, &HashSet::new(), *optimal_height).first() %}
         {% if tag.value() != "new" %}
         <li
           hx-get="/block?parent_hash={{ block.hash }}"

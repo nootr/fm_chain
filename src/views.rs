@@ -25,22 +25,30 @@ pub fn get_index(cloudflare_code: Option<String>, recommended_block_count: usize
 #[template(path = "parent_form.html")]
 struct ParentFormTemplate {
     blocks: Vec<Block>,
+    optimal_height: i64,
 }
 
-pub fn get_partial_parent(blocks: Vec<Block>) -> String {
-    ParentFormTemplate { blocks }
-        .render()
-        .expect("Failed to render template")
+pub fn get_partial_parent(blocks: Vec<Block>, optimal_height: i64) -> String {
+    ParentFormTemplate {
+        blocks,
+        optimal_height,
+    }
+    .render()
+    .expect("Failed to render template")
 }
 
 pub fn get_parent(
     cloudflare_code: Option<String>,
     recommended_block_count: usize,
     blocks: Vec<Block>,
+    optimal_height: i64,
 ) -> String {
-    let modal = ParentFormTemplate { blocks }
-        .render()
-        .expect("Failed to render template");
+    let modal = ParentFormTemplate {
+        blocks,
+        optimal_height,
+    }
+    .render()
+    .expect("Failed to render template");
 
     IndexTemplate {
         cloudflare_code,
@@ -175,6 +183,7 @@ struct BlocksTemplate {
     next_offset: u32,
     page_size: u32,
     show_all: bool,
+    optimal_height: i64,
 }
 
 pub fn get_partial_blocks(
@@ -183,6 +192,7 @@ pub fn get_partial_blocks(
     next_offset: u32,
     page_size: u32,
     show_all: bool,
+    optimal_height: i64,
 ) -> String {
     BlocksTemplate {
         blocks,
@@ -190,6 +200,7 @@ pub fn get_partial_blocks(
         next_offset,
         page_size,
         show_all,
+        optimal_height,
     }
     .render()
     .expect("Failed to render template")

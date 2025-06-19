@@ -64,9 +64,14 @@ async fn get_parent(
     let blocks = Block::find_all(&db, false, None, None)
         .await
         .expect("Failed to fetch blocks");
+    let optimal_height = blocks
+        .iter()
+        .find(|b| b.can_create_child(None))
+        .expect("There should be at least one block that can create a child")
+        .height;
 
     if is_htmx_request(&request) {
-        return HttpResponse::Ok().body(views::get_partial_parent(blocks));
+        return HttpResponse::Ok().body(views::get_partial_parent(blocks, optimal_height));
     }
 
     let cloudflare_code = conf.cloudflare_code.clone();
@@ -78,6 +83,7 @@ async fn get_parent(
         cloudflare_code,
         recommended_block_count,
         blocks,
+        optimal_height,
     ))
 }
 
@@ -300,6 +306,12 @@ async fn get_blocks(
     let blocks = Block::find_all(&db, !show_all, Some(page_size), Some(page_offset))
         .await
         .expect("Unable to fetch all blocks");
+    let optimal_height = Block::find_all(&db, false, None, None)
+        .await
+        .expect("Failed to fetch blocks")
+        .iter()
+        .find(|b| b.can_create_child(None))
+        .map_or(0, |b| b.height);
 
     HttpResponse::Ok().body(views::get_partial_blocks(
         blocks,
@@ -307,5 +319,6 @@ async fn get_blocks(
         next_offset,
         page_size,
         show_all,
+        optimal_height,
     ))
 }
