@@ -29,32 +29,30 @@
       <p class="card-description">Select a chain to extend. Maybe a message or solve you like?</p>
     </div>
     <div class="recommended-tip">
-        <p><span class="tag tag-recommended">Recommended</span> blocks are those with a green border; they give you the highest chance of ending in the main chain.</p>
+        <p><span class="tag tag-recommended">Recommended</span> blocks are those with a green border; they give you a higher chance of ending in the main chain.</p>
     </div>
-    <div class="card-content">
-      <ul class="parent-options">
-        {% for block in blocks %}
-        {% if let Some(tag) = block.tags(None, &HashSet::new(), *optimal_height).first() %}
-        {% if tag.value() != "new" %}
-        <li
-          hx-get="/block?parent_hash={{ block.hash }}"
-          hx-swap="outerHTML"
-          hx-target="#parent-select-modal"
-          hx-push-url="true"
-          {% if tag.value() == "recommended" %}class="parent-recommended"{% endif %}
-          >
-          <div class="parent-line">
-            <span class="parent-title">{{ block.name }}:</span>
-            <span class="parent-message">{{ block.message }}</span>
-          </div>
-          <div class="parent-line">
-            <span class="parent-solution-moves">{{ block.solution_moves }} move solution</span>
-          </div>
-        </li>
-        {% endif %}
-        {% endif %}
-        {% endfor %}
-      </ul>
-    </div>
+    <ul class="parent-options">
+      {% for block in blocks %}
+      {% if let Some(tag) = block.tags(None, &HashSet::new(), *optimal_height).first() %}
+      {% if tag.value() != "new" %}
+      <li
+        hx-get="/block?parent_hash={{ block.hash }}"
+        hx-swap="outerHTML"
+        hx-target="#parent-select-modal"
+        hx-push-url="true"
+        {% if tag.value() == "recommended" %}class="parent-recommended"{% endif %}
+        >
+        <div class="parent-line">
+          <span class="parent-title">{{ block.name }}:</span>
+          <span class="parent-message">{{ block.message }}</span>
+        </div>
+        <div class="parent-line">
+          <span class="parent-solution-moves">{{ block.solution_moves }} move solution</span>
+        </div>
+      </li>
+      {% endif %}
+      {% endif %}
+      {% endfor %}
+    </ul>
   </div>
 </div>
