@@ -631,6 +631,13 @@ input[readonly],
   color: var(--text-muted);
 }
 
+.recommended-tip {
+    font-size: 0.875rem;
+    margin: 0.5rem;
+    margin-top: 0;
+    text-align: center;
+}
+
 /* ===== ALERTS & NOTIFICATIONS ===== */
 .flash-message {
   position: fixed;
