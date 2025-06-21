@@ -230,7 +230,7 @@ main {
 }
 
 .card-content {
-  padding: 0 1.5rem 1.5rem;
+  padding: 1.5rem;
 }
 
 .card-footer {
@@ -633,8 +633,6 @@ input[readonly],
 
 .recommended-tip {
     font-size: 0.875rem;
-    margin: 0.5rem;
-    margin-top: 0;
     text-align: center;
 }
 
@@ -1016,13 +1014,12 @@ footer {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .container {
     padding: 0 1rem;
   }
 
   .card-header,
-  .card-content,
   .card-footer {
     padding: 1rem;
   }
