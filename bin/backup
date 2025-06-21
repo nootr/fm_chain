@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Config
+CONTEXT="jhx-app"
+NAMESPACE="fm-chain"
+LABEL_SELECTOR="app=fm-chain"
+DB_PATH="/app/data/fm_chain.db"
+REMOTE_BACKUP_PATH="/app/data/fm_chain_backup_temp.db"
+LOCAL_DIR="./backups"
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+LOCAL_BACKUP_RAW="$LOCAL_DIR/fm_chain_backup_$TIMESTAMP.db"
+LOCAL_BACKUP="$LOCAL_BACKUP_RAW.gz"
+EXTRACTED_TEST_DB="$LOCAL_BACKUP_RAW.extracted-test"
+
+# Ensure local backup directory exists
+mkdir -p "$LOCAL_DIR"
+
+# Get pod name
+POD=$(kubectl --context "$CONTEXT" get pods -n "$NAMESPACE" -l "$LABEL_SELECTOR" \
+  -o jsonpath="{.items[0].metadata.name}" 2>/dev/null || true)
+
+if [ -z "$POD" ]; then
+  echo "❌ Error: No pod found with label $LABEL_SELECTOR in namespace $NAMESPACE"
+  exit 1
+fi
+
+echo "📦 Creating SQLite backup inside pod $POD..."
+
+# Create a safe backup using sqlite3 .backup
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- \
+  sqlite3 "$DB_PATH" ".backup '$REMOTE_BACKUP_PATH'"
+
+echo "⬇️  Downloading backup to $LOCAL_BACKUP_RAW..."
+kubectl --context "$CONTEXT" cp "$NAMESPACE/$POD:$REMOTE_BACKUP_PATH" "$LOCAL_BACKUP_RAW"
+
+echo "🧹 Cleaning up remote temp file..."
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- rm -f "$REMOTE_BACKUP_PATH"
+
+echo "🗜️  Compressing backup..."
+gzip "$LOCAL_BACKUP_RAW"
+
+echo "🧪 Testing backup integrity..."
+gunzip -c "$LOCAL_BACKUP" > "$EXTRACTED_TEST_DB"
+
+if sqlite3 "$EXTRACTED_TEST_DB" "PRAGMA integrity_check;" | grep -q "ok"; then
+  echo "✅ Backup test passed: SQLite database is valid."
+  rm "$EXTRACTED_TEST_DB"
+else
+  echo "❌ Backup test failed: Integrity check did not return 'ok'."
+  echo "Extracted file retained at $EXTRACTED_TEST_DB"
+  exit 1
+fi
+
+echo "🎉 Backup complete: $LOCAL_BACKUP"

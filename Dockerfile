@@ -20,6 +20,8 @@ WORKDIR /app
 ENV DATABASE_URL=sqlite:fm_chain.db
 ENV HOST=0.0.0.0
 
+RUN apt-get update && apt-get install -y --no-install-recommends sqlite3
+
 COPY --from=builder /tmp/target/release/fm_chain .
 COPY static ./static
 COPY templates ./templates

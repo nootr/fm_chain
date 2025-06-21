@@ -18,6 +18,13 @@ A blockchain which uses Fewest Moves solutions to hash-based scrambles as proof 
 ```
 
 
+### Backups
+
+```bash
+./bin/backup
+```
+
+
 ### Database
 
 ```bash
