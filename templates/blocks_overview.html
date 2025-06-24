@@ -11,9 +11,11 @@
       <div class="tag tag-{{ tag.value() }}" title="{{ tag.label() }}">{{ tag.label() }}</div>
       {% endfor %}
     </div>
+    {% if block.height > 0 %}
     <div class="block-moves">
         <span class="block-moves-count">{{ block.solution_moves }}</span>moves
     </div>
+    {% endif %}
   </div>
   <div class="block-message"><pre>{{ block.message }}</pre></div>
   <div class="block-details" x-show="open" x-transition:enter x-cloak :data-block-details-open="open">
