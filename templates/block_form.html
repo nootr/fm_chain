@@ -74,7 +74,7 @@
               name="message"
               :readonly="lockData"
               class="form-textarea"
-              placeholder="Hi, mom!&#10; - Alice"
+              placeholder="Write a message to generate a scramble. Change it to get a new one."
               hx-trigger="keyup changed delay:800ms"
               hx-get="/solution"
               hx-target="#solution-form"
@@ -83,7 +83,7 @@
               hx-push-url="true"
               required
               >{% if let Some(msg) = message %}{{ msg }}{% endif %}</textarea>
-            <p class="help-text">Write a message to generate a scramble. Change it to get a new one.</p>
+            <p class="help-text">⚠️ Changing your message will change your scramble!</p>
           </div>
         </div>
       </form>
