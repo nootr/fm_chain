@@ -63,7 +63,7 @@ pub fn calculate_hash(data: &[u8]) -> String {
     base18
 }
 
-pub fn scramble_from_hash(hash: &str) -> Vec<Move> {
+pub fn scramble_from_hash_v1(hash: &str) -> Vec<Move> {
     // Maps index to (face, count)
     let move_defs = [
         Move::U(1),
@@ -96,6 +96,26 @@ pub fn scramble_from_hash(hash: &str) -> Vec<Move> {
 
         moves.push(move_defs[index]);
     }
+    moves
+}
+
+pub fn scramble_from_hash(hash: &str) -> Vec<Move> {
+    let mut moves = scramble_from_hash_v1(hash);
+
+    cleanup_scramble(&mut moves);
+
+    while matches!(moves.first(), Some(Move::F(_))) {
+        moves.remove(0);
+    }
+    while matches!(moves.last(), Some(Move::R(_))) {
+        moves.pop();
+    }
+
+    // Start and end with R' U' F
+    moves.insert(0, Move::R(3));
+    moves.insert(1, Move::U(3));
+    moves.insert(2, Move::F(1));
+    moves.extend_from_slice(&[Move::R(3), Move::U(3), Move::F(1)]);
 
     moves
 }
@@ -218,6 +238,40 @@ mod tests {
                 "[{} U] Moves should not solve cube",
                 solve_raw
             );
+        }
+    }
+
+    #[test]
+    fn test_start_end_scramble() {
+        for hash in 0..10000 {
+            let scramble_hash = format!("{:0>18}", hash);
+            let mut scramble = scramble_from_hash(&scramble_hash);
+            cleanup_scramble(&mut scramble);
+            assert!(
+                scramble.starts_with(&[Move::R(3), Move::U(3), Move::F(1)]),
+                "Scramble should start with R' U' F for scramble {:?} with hash {}",
+                scramble,
+                scramble_hash
+            );
+            assert!(
+                scramble.ends_with(&[Move::R(3), Move::U(3), Move::F(1)]),
+                "Scramble should end with R' U' F for scramble {:?} with hash {}",
+                scramble,
+                scramble_hash
+            );
+        }
+    }
+
+    #[test]
+    fn test_scramble_cleaned() {
+        for hash in 0..10000 {
+            let scramble_hash = format!("{:0>18}", hash);
+            let raw_scramble = scramble_from_hash(&scramble_hash);
+            let mut scramble = raw_scramble.clone();
+
+            cleanup_scramble(&mut scramble);
+
+            assert_eq!(scramble, raw_scramble);
         }
     }
 }

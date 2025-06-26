@@ -8,8 +8,8 @@ use crate::config;
 use crate::messages::FlashMessage;
 use crate::models::Block;
 use crate::utils::{
-    calculate_hash, cleanup_scramble, format_data, format_moves, is_htmx_request, parse_moves,
-    scramble_from_hash, verify_solution,
+    calculate_hash, format_data, format_moves, is_htmx_request, parse_moves, scramble_from_hash,
+    verify_solution,
 };
 use crate::views;
 
@@ -160,8 +160,7 @@ async fn get_solution(
     let message = block_info.message.clone().unwrap_or_default();
     let data = format_data(&block_info.parent_hash, &name, &message);
     let hash = calculate_hash(&data);
-    let mut raw_scramble = scramble_from_hash(&hash);
-    cleanup_scramble(&mut raw_scramble);
+    let raw_scramble = scramble_from_hash(&hash);
     let scramble = format_moves(&raw_scramble);
 
     if is_htmx_request(&request) {
@@ -224,15 +223,6 @@ async fn post_solution(
             return HttpResponse::NotFound().body("Parent block not found");
         }
     };
-
-    let data = format_data(
-        &block_info.parent_hash,
-        &block_info.name,
-        &block_info.message,
-    );
-    let hash = calculate_hash(&data);
-    let mut raw_scramble = scramble_from_hash(&hash);
-    cleanup_scramble(&mut raw_scramble);
 
     let data = format_data(&parent_block.hash, &block_info.name, &block_info.message);
     let hash = calculate_hash(&data);

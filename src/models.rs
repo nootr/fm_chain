@@ -34,6 +34,7 @@ impl BlockTag {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct Block {
+    pub version: u8,
     pub hash: String,
     pub parent_hash: Option<String>,
     pub height: i64,
@@ -48,8 +49,11 @@ pub struct Block {
 impl Block {
     // Get scramble for this block
     pub fn scramble(&self) -> String {
-        let mut scramble = utils::scramble_from_hash(&self.hash);
-        utils::cleanup_scramble(&mut scramble);
+        let scramble = match self.version {
+            1 => utils::scramble_from_hash_v1(&self.hash),
+            2 => utils::scramble_from_hash(&self.hash),
+            _ => panic!("Unsupported block version"),
+        };
         utils::format_moves(&scramble)
     }
 
@@ -199,7 +203,7 @@ impl Block {
         page_offset: Option<u32>,
     ) -> Result<Vec<Block>, sqlx::Error> {
         let mut query_str = String::from(
-            "SELECT hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
+            "SELECT version, hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
              FROM blocks"
         );
 
@@ -244,7 +248,7 @@ impl Block {
     // Fetch a block by hash
     pub async fn find_by_hash(db: &SqlitePool, hash: &str) -> Result<Block, sqlx::Error> {
         sqlx::query_as::<_, Block>(
-            "SELECT hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
+            "SELECT version, hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at
              FROM blocks
              WHERE hash = ?",
         )
@@ -267,7 +271,7 @@ impl Block {
             "INSERT INTO blocks (
                 hash, height, name, message, solution, solution_moves, solution_description
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
+            RETURNING version, hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
         )
         .bind(hash)
         .bind(0)
@@ -296,7 +300,7 @@ impl Block {
             "INSERT INTO blocks (
                 hash, parent_hash, height, name, message, solution, solution_moves, solution_description
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            RETURNING hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
+            RETURNING version, hash, parent_hash, height, name, message, solution, solution_moves, solution_description, created_at",
         )
         .bind(hash)
         .bind(&self.hash)
@@ -545,6 +549,7 @@ mod tests {
                 .expect("Failed to parse test time");
 
         let genesis_block = Block {
+            version: 2,
             hash: "genesis_hash".to_string(),
             parent_hash: None,
             height: 0,
@@ -557,6 +562,7 @@ mod tests {
         };
 
         let block_a = Block {
+            version: 2,
             hash: "block_a_hash".to_string(),
             parent_hash: Some("genesis_hash".to_string()),
             height: 1,
@@ -569,6 +575,7 @@ mod tests {
         };
 
         let block_b = Block {
+            version: 2,
             hash: "block_b_hash".to_string(),
             parent_hash: Some("genesis_hash".to_string()),
             height: 1,
@@ -581,6 +588,7 @@ mod tests {
         };
 
         let block_c = Block {
+            version: 2,
             hash: "block_c_hash".to_string(),
             parent_hash: Some("genesis_hash".to_string()),
             height: 1,
@@ -593,6 +601,7 @@ mod tests {
         };
 
         let block_d = Block {
+            version: 2,
             hash: "block_d_hash".to_string(),
             parent_hash: Some("block_a_hash".to_string()),
             height: 2,
@@ -631,7 +640,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_a.hash)
             .expect("Block A should be present")
-            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &main_chain_hashes, optimal_height);
         let expected_tags_a = vec![BlockTag::New, BlockTag::MainChain];
         assert_eq!(actual_tags_a, expected_tags_a, "Tags mismatch for Block A");
 
@@ -639,7 +648,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_d.hash)
             .expect("Block D should be present")
-            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &main_chain_hashes, optimal_height);
         let expected_tags_d = vec![BlockTag::New, BlockTag::MainChain];
         assert_eq!(actual_tags_d, expected_tags_d, "Tags mismatch for Block D");
 
@@ -647,7 +656,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == genesis_block.hash)
             .expect("Genesis block should be present")
-            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &main_chain_hashes, optimal_height);
         let expected_tags_genesis = vec![BlockTag::MainChain, BlockTag::Genesis];
         assert_eq!(
             actual_tags_genesis, expected_tags_genesis,
@@ -658,7 +667,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_b.hash)
             .expect("Block B should be present")
-            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &main_chain_hashes, optimal_height);
         let expected_tags_b = vec![BlockTag::New];
         assert_eq!(actual_tags_b, expected_tags_b, "Tags mismatch for Block B");
 
@@ -666,7 +675,7 @@ mod tests {
             .iter()
             .find(|b| b.hash == block_c.hash)
             .expect("Block C should be present")
-            .tags(Some(current_test_time), &blocks, &main_chain_hashes);
+            .tags(Some(current_test_time), &main_chain_hashes, optimal_height);
         let expected_tags_c = vec![BlockTag::Recommended];
         assert_eq!(actual_tags_c, expected_tags_c, "Tags mismatch for Block C");
     }
@@ -711,5 +720,46 @@ mod tests {
             .expect("Failed to get recommended block count");
 
         assert_eq!(recommended_count, 2, "Recommended count should be 2");
+    }
+
+    #[test]
+    fn test_scramble_v1_v2() {
+        let mut block = Block {
+            version: 1,
+            hash: "A0C1E2G3".to_string(),
+            parent_hash: None,
+            height: 0,
+            name: "Test Block".to_string(),
+            message: "Test Message".to_string(),
+            solution: "U D L R F B".to_string(),
+            solution_moves: 6,
+            solution_description: "Test Description".to_string(),
+            created_at: Some(
+                NaiveDateTime::parse_from_str("2024-09-19 18:45:00", "%Y-%m-%d %H:%M:%S").unwrap(),
+            ),
+        };
+        let scramble = block.scramble();
+
+        assert!(
+            !scramble.starts_with("R' U' F"),
+            "Scramble should not start with R' U' F"
+        );
+        assert!(
+            !scramble.ends_with("R' U' F"),
+            "Scramble should not end with R' U' F"
+        );
+
+        block.version = 2;
+
+        let scramble = block.scramble();
+
+        assert!(
+            scramble.starts_with("R' U' F"),
+            "Scramble should start with R' U' F"
+        );
+        assert!(
+            scramble.ends_with("R' U' F"),
+            "Scramble should end with R' U' F"
+        );
     }
 }
