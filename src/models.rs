@@ -47,6 +47,22 @@ pub struct Block {
 }
 
 impl Block {
+    // Check if the block hash and solutions are valid
+    pub fn is_valid(&self) -> bool {
+        let expected_hash = utils::calculate_hash(&utils::format_data(
+            self.parent_hash.as_deref().unwrap_or(""),
+            &self.name,
+            &self.message,
+        ));
+        let scramble = utils::parse_moves(&self.scramble());
+        let solution = utils::parse_moves(&self.solution);
+
+        utils::verify_solution(&scramble, &solution)
+            && self.solution_moves == solution.len() as u8
+            && !self.hash.is_empty()
+            && self.hash == expected_hash
+    }
+
     // Get scramble for this block
     pub fn scramble(&self) -> String {
         let scramble = match self.version {

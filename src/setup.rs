@@ -3,21 +3,7 @@ use sqlx::SqlitePool;
 use crate::models::Block;
 use crate::utils;
 
-pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
-    sqlx::migrate!("./migrations")
-        .run(db)
-        .await
-        .expect("Failed to run migrations");
-
-    let blocks = Block::find_all(db, false, None, None)
-        .await
-        .expect("Unable to fetch blocks");
-
-    if !blocks.is_empty() {
-        println!("Genesis block already created! Nothing to do here..");
-        return Ok(());
-    }
-
+async fn create_genesis_block(db: &SqlitePool) -> std::io::Result<()> {
     let name = "Nootr";
     let message = "Let the solves begin! ✨";
     let data = utils::format_data("", name, message);
@@ -35,7 +21,7 @@ pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
         "Solution should be valid"
     );
 
-    let block = Block::create_genesis(
+    Block::create_genesis(
         db,
         &hash,
         name,
@@ -45,9 +31,34 @@ pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
         solution_description,
     )
     .await
-    .expect("Unable to create genesis block");
+    .expect("Failed to create genesis block");
 
-    println!("Created genesis block: {:?}", &block);
+    Ok(())
+}
+
+pub async fn run_setup(db: &SqlitePool) -> std::io::Result<()> {
+    sqlx::migrate!("./migrations")
+        .run(db)
+        .await
+        .expect("Failed to run migrations");
+
+    let blocks = Block::find_all(db, false, None, None)
+        .await
+        .expect("Unable to fetch blocks");
+
+    if let Some(invalid_block) = blocks.iter().find(|b| !b.is_valid()) {
+        panic!(
+            "Invalid block found in database: {:?} at height {}",
+            invalid_block.hash, invalid_block.height
+        );
+    } else {
+        println!("No invalid blocks found in database.");
+    }
+
+    if blocks.is_empty() {
+        create_genesis_block(db).await?;
+        println!("Created genesis block");
+    }
 
     Ok(())
 }
