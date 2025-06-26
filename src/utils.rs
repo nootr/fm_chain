@@ -96,13 +96,12 @@ pub fn scramble_from_hash_v1(hash: &str) -> Vec<Move> {
 
         moves.push(move_defs[index]);
     }
+    cleanup_scramble(&mut moves);
     moves
 }
 
 pub fn scramble_from_hash(hash: &str) -> Vec<Move> {
     let mut moves = scramble_from_hash_v1(hash);
-
-    cleanup_scramble(&mut moves);
 
     while matches!(moves.first(), Some(Move::F(_))) {
         moves.remove(0);
