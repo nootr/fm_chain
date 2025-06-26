@@ -273,4 +273,17 @@ mod tests {
             assert_eq!(scramble, raw_scramble);
         }
     }
+
+    #[test]
+    fn test_scramble_cleaned_v1() {
+        for hash in 0..10000 {
+            let scramble_hash = format!("{:0>18}", hash);
+            let raw_scramble = scramble_from_hash_v1(&scramble_hash);
+            let mut scramble = raw_scramble.clone();
+
+            cleanup_scramble(&mut scramble);
+
+            assert_eq!(scramble, raw_scramble);
+        }
+    }
 }

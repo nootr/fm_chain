@@ -778,4 +778,21 @@ mod tests {
             "Scramble should end with R' U' F"
         );
     }
+
+    #[sqlx::test]
+    async fn test_new_block_is_v2(pool: SqlitePool) {
+        let new_block = Block::create_genesis(
+            &pool,
+            "new_block_hash",
+            "New User",
+            "New Message",
+            "U D L R F B",
+            6,
+            "New Description",
+        )
+        .await
+        .expect("Failed to create new block");
+
+        assert_eq!(new_block.version, 2, "New block should be version 2");
+    }
 }
